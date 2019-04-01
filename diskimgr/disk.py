@@ -1,5 +1,5 @@
 #! /usr/bin/env python3
-"""This module contains the Disc class with functions that
+"""This module contains the Disk class with functions that
 do the actual imaging.
 """
 
@@ -17,17 +17,19 @@ from . import wrappers
 from . import config
 from . import shared
 
-class Disc:
-    """Disc class"""
+class Disk:
+    """Disk class"""
     def __init__(self):
-        """initialise Disc class instance"""
+        """initialise Disk class instance"""
 
         # Input collected by GUI / CLI
         self.dirOut = ''
-        self.omDevice = ''
+        self.blockDevice = ''
+        self.blockSize = ''
+        self.blockSizeDefault = ''
         self.readMethod = ''
         self.retries = ''
-        self.readomVersion = ''
+        self.ddVersion = ''
         self.ddRescueVersion = ''
         self.prefix = ''
         self.extension = ''
@@ -45,7 +47,7 @@ class Disc:
         self.dirOutIsWritable = False
         # Flags that define if dependencies are installed
         self.ddrescueInstalled = False
-        self.readomInstalled = False
+        self.ddInstalled = False
         # Config file location, depends on package directory
         packageDir = os.path.dirname(os.path.abspath(__file__))
         homeDir = os.path.normpath(os.path.expanduser("~"))
@@ -84,13 +86,19 @@ class Disc:
         except:
             self.configSuccess = False
 
+        ## TEST
+        print(self.configSuccess)
+        ## TEST
+
         if self.configSuccess:
             # Update class variables
             try:
                 self.logFileName = configDict['logFileName']
                 self.checksumFileName = configDict['checksumFileName']
                 self.metadataFileName = configDict['metadataFileName']
-                self.omDevice = configDict['omDevice']
+                self.blockDevice = configDict['blockDevice']
+                self.blockSize = configDict['blockSize']
+                self.blockSizeDefault = self.blockSize
                 self.prefix = configDict['prefix']
                 self.extension = configDict['extension']
                 self.rescueDirectDiscMode = configDict['rescueDirectDiscMode']
@@ -131,23 +139,23 @@ class Disc:
         # Check if dirOut is writable
         self.dirOutIsWritable = os.access(self.dirOut, os.W_OK | os.X_OK)
 
-        # Check if readom and ddrescue are installed
+        # Check if dd and ddrescue are installed
 
-        if which("readom") is not None:
-            self.readomInstalled = True
+        if which("dd") is not None:
+            self.ddInstalled = True
         if which("ddrescue") is not None:
             self.ddrescueInstalled = True
 
-        # Get readom and ddrescue version strings
-        self.readomVersion = wrappers.getVersion(['readom'])
+        # Get dd and ddrescue version strings
+        self.ddVersion = wrappers.getVersion(['dd'])
         self.ddRescueVersion = wrappers.getVersion(['ddrescue'])
 
         # Check if selected block device exists
-        p = pathlib.Path(self.omDevice)
+        p = pathlib.Path(self.blockDevice)
         self.deviceExistsFlag = p.is_block_device()
 
         # Check if disc is in tray
-        if self.getTrayStatus(self.omDevice) == 4:
+        if self.getTrayStatus(self.blockDevice) == 4:
             self.discInTrayFlag = True
 
         # Image file
@@ -159,8 +167,8 @@ class Disc:
         # Log file
         self.logFile = os.path.join(self.dirOut, self.logFileName)
 
-    def processDisc(self):
-        """Process a disc"""
+    def processDisk(self):
+        """Process a disk"""
 
         # Create dictionary for storing metadata (which are later written to file)
         metadata = {}
@@ -172,27 +180,27 @@ class Disc:
         logging.info('*** USER INPUT ***')
         logging.info('diskimgrVersion: ' + config.version)
         logging.info('dirOut: ' + self.dirOut)
-        logging.info('omDevice: ' + self.omDevice)
+        logging.info('blockDevice: ' + self.blockDevice)
         logging.info('readMethod: ' + self.readMethod)
         logging.info('maxRetries: ' + str(self.retries))
         logging.info('prefix: ' + self.prefix)
         logging.info('extension: ' + self.extension)
         logging.info('direct disc mode (ddrescue only): ' + str(self.rescueDirectDiscMode))
-        logging.info('automatically retry with ddrecue on readom failure: ' + str(self.autoRetry))
+        logging.info('automatically retry with ddrecue on dd failure: ' + str(self.autoRetry))
 
         ## Acquisition start date/time
         acquisitionStart = shared.generateDateTime(self.timeZone)
 
         # Unmount disc
-        args = ['umount', self.omDevice]
+        args = ['umount', self.blockDevice]
         wrappers.umount(args)
 
-        if self.readMethod == "readom":
-            args = ['readom']
+        if self.readMethod == "dd":
+            args = ['dd']
             args.append('retries=' + str(self.retries))
-            args.append('dev=' + self.omDevice)
+            args.append('dev=' + self.blockDevice)
             args.append('f=' + self.imageFile)
-            readCmdLine, readExitStatus, self.readErrorFlag, self.interruptedFlag = wrappers.readom(args)
+            readCmdLine, readExitStatus, self.readErrorFlag, self.interruptedFlag = wrappers.dd(args)
         elif self.readMethod == "ddrescue":
             args = ['ddrescue']
             if self.rescueDirectDiscMode:
@@ -201,7 +209,7 @@ class Disc:
             args.append('2048')
             args.append('-r' + str(self.retries))
             args.append('-v')
-            args.append(self.omDevice)
+            args.append(self.blockDevice)
             args.append(self.imageFile)
             args.append(self.mapFile)
             readCmdLine, readExitStatus, self.readErrorFlag, self.interruptedFlag = wrappers.ddrescue(args)
@@ -247,10 +255,10 @@ class Disc:
         metadata['description'] = self.description
         metadata['notes'] = self.notes
         metadata['diskimgrVersion'] = config.version
-        metadata['omDevice'] = self.omDevice
+        metadata['blockDevice'] = self.blockDevice
         metadata['readMethod'] = self.readMethod
-        if self.readMethod == "readom":
-            metadata['readMethodVersion'] = self.readomVersion
+        if self.readMethod == "dd":
+            metadata['readMethodVersion'] = self.ddVersion
         if self.readMethod == "ddrescue":
             metadata['readMethodVersion'] = self.ddRescueVersion
         metadata['readCommandLine'] = readCmdLine
@@ -281,8 +289,8 @@ class Disc:
         logging.info('Success: ' + str(self.successFlag))
 
         if self.successFlag:
-            wrappers.ejectDrive(self.omDevice)
-            logging.info('Disc processed without errors')
+            wrappers.ejectDrive(self.blockDevice)
+            logging.info('Disk processed without errors')
             logging.info('Ejecting disc')
         else:
             logging.error('One or more errors occurred while processing disc, '

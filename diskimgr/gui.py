@@ -23,7 +23,7 @@ from tkinter import scrolledtext as ScrolledText
 from tkinter import messagebox as tkMessageBox
 from tkinter import ttk
 from tkfilebrowser import askopendirname
-from .om import Disc
+from .disk import Disk
 from . import config
 
 
@@ -43,15 +43,19 @@ class omimgrGUI(tk.Frame):
         self.log_queue = queue.Queue(-1)
         self.queue_handler = QueueHandler(self.log_queue)
         # Create disc instance
-        self.disc = Disc()
+        self.disk = Disk()
         self.t1 = None
         # Read configuration file
-        self.disc.getConfiguration()
+        self.disk.getConfiguration()
         # Set dirOut, depending on whether value from config is a directory
-        if os.path.isdir(self.disc.defaultDir):
-            self.disc.dirOut = self.disc.defaultDir
+        if os.path.isdir(self.disk.defaultDir):
+            self.disk.dirOut = self.disk.defaultDir
         else:
-            self.disc.dirOut = os.path.expanduser("~")
+            self.disk.dirOut = os.path.expanduser("~")
+        ## TEST
+        print(self.disk.timeZone)
+        print(self.disk.rescueDirectDiscMode)
+        ## TEST
         # Build the GUI
         self.build_gui()
 
@@ -66,81 +70,79 @@ class omimgrGUI(tk.Frame):
         inputValidateFlag = True
 
         # Fetch entered values (strip any leading / trailing whitespace characters)
-        self.disc.omDevice = self.omDevice_entry.get().strip()
+        self.disk.blockDevice = self.omDevice_entry.get().strip()
 
         # Lookup readMethod for readMethodCode value
         readMethodCode = self.v.get()
         for i in self.readMethods:
             if i[1] == readMethodCode:
-                self.disc.readMethod = i[0]
+                self.disk.readMethod = i[0]
 
-        self.disc.retries = self.retries_entry.get().strip()
-        self.disc.prefix = self.prefix_entry.get().strip()
-        self.disc.extension = self.extension_entry.get().strip()
-        self.disc.identifier = self.identifier_entry.get().strip()
-        self.disc.description = self.description_entry.get().strip()
-        self.disc.notes = self.notes_entry.get(1.0, tk.END).strip()
-        self.disc.rescueDirectDiscMode = self.rescueDirectDiscMode.get()
-        self.disc.autoRetry = self.autoRetry.get()
+        self.disk.retries = self.retries_entry.get().strip()
+        self.disk.prefix = self.prefix_entry.get().strip()
+        self.disk.extension = self.extension_entry.get().strip()
+        self.disk.identifier = self.identifier_entry.get().strip()
+        self.disk.description = self.description_entry.get().strip()
+        self.disk.notes = self.notes_entry.get(1.0, tk.END).strip()
+        self.disk.rescueDirectDiscMode = self.rescueDirectDiscMode.get()
+        self.disk.autoRetry = self.autoRetry.get()
 
         # Validate input
-        self.disc.validateInput()
+        self.disk.validateInput()
 
         # Show error message for any parameters that didn't pass validation
-        if not self.disc.dirOutIsDirectory:
+        if not self.disk.dirOutIsDirectory:
             inputValidateFlag = False
-            msg = ("Output directory doesn't exist:\n" + self.disc.dirOut)
+            msg = ("Output directory doesn't exist:\n" + self.disk.dirOut)
             tkMessageBox.showerror("ERROR", msg)
 
-        if not self.disc.dirOutIsWritable:
+        if not self.disk.dirOutIsWritable:
             inputValidateFlag = False
-            msg = ('Cannot write to directory ' + self.disc.dirOut)
+            msg = ('Cannot write to directory ' + self.disk.dirOut)
             tkMessageBox.showerror("ERROR", msg)
 
-        if not self.disc.deviceExistsFlag:
+        if not self.disk.deviceExistsFlag:
             inputValidateFlag = False
             msg = ('Selected device is not accessible')
             tkMessageBox.showerror("ERROR", msg)
 
-        if not self.disc.discInTrayFlag:
+        if not self.disk.discInTrayFlag:
             inputValidateFlag = False
             msg = ('No disc in tray')
             tkMessageBox.showerror("ERROR", msg)
 
-        if not self.disc.readomInstalled:
+        if not self.disk.ddInstalled:
             inputValidateFlag = False
-            msg = ("readom not installed!\n"
-                   "install with:\n"
-                   "'sudo apt install wodim'")
+            msg = ("dd not installed!")
             tkMessageBox.showerror("ERROR", msg)
 
-        if not self.disc.ddrescueInstalled:
+        if not self.disk.ddrescueInstalled:
             inputValidateFlag = False
             msg = ("ddrescue not installed!\n"
                    "install with:\n"
                    "'sudo apt install gddrescue'")
             tkMessageBox.showerror("ERROR", msg)
 
-        # Ask confirmation if readom is used on dir with existing files
+        # Ask confirmation if dd is used on dir with existing files
         outDirConfirmFlag = True
-        if self.disc.outputExistsFlag and self.disc.readMethod == 'readom':
-            msg = ('writing to ' + self.disc.dirOut + ' will overwrite existing files!\n'
+        if self.disk.outputExistsFlag and self.disk.readMethod == 'dd':
+            msg = ('writing to ' + self.disk.dirOut + ' will overwrite existing files!\n'
                    'press OK to continue, otherwise press Cancel')
             outDirConfirmFlag = tkMessageBox.askokcancel("Overwrite files?", msg)
             if outDirConfirmFlag:
                 # Delete old image file (and map file, if it exists)
-                os.remove(self.disc.imageFile)
+                os.remove(self.disk.imageFile)
                 try:
-                    os.remove(self.disc.mapFile)
+                    os.remove(self.disk.mapFile)
                 except OSError:
                     pass
             else:
                 inputValidateFlag = False
         # If ddrescue is used, delete old image file, but only if no map file
         # can be found (which indicates readom output)
-        elif self.disc.outputExistsFlag and self.disc.readMethod == 'ddrescue':
-            if not os.path.isfile(self.disc.mapFile):
-                os.remove(self.disc.imageFile)
+        elif self.disk.outputExistsFlag and self.disk.readMethod == 'ddrescue':
+            if not os.path.isfile(self.disk.mapFile):
+                os.remove(self.disk.imageFile)
 
         if inputValidateFlag:
 
@@ -152,7 +154,7 @@ class omimgrGUI(tk.Frame):
                 self.after(100, self.poll_log_queue)
             except OSError:
                 # Something went wrong while trying to write to log file
-                msg = ('error trying to write log file to ' + self.disc.logFile)
+                msg = ('error trying to write log file to ' + self.disk.logFile)
                 tkMessageBox.showerror("ERROR", msg)
                 successLogger = False
 
@@ -165,11 +167,13 @@ class omimgrGUI(tk.Frame):
                 self.retries_entry.config(state='disabled')
                 self.decreaseRetriesButton.config(state='disabled')
                 self.increaseRetriesButton.config(state='disabled')
+                self.decreaseBSButton.config(state='disabled')
+                self.increaseBSButton.config(state='disabled')
                 self.rescueDirectDiscMode_entry.config(state='disabled')
                 self.autoRetry_entry.config(state='disabled')
                 self.prefix_entry.config(state='disabled')
                 self.extension_entry.config(state='disabled')
-                self.rbReadom.config(state='disabled')
+                self.rbDd.config(state='disabled')
                 self.rbRescue.config(state='disabled')
                 self.identifier_entry.config(state='disabled')
                 self.loadJsonButton.config(state='disabled')
@@ -180,22 +184,22 @@ class omimgrGUI(tk.Frame):
                 self.quit_button.config(state='disabled')
 
                 # Launch disc processing function as subprocess
-                self.t1 = threading.Thread(target=self.disc.processDisc)
+                self.t1 = threading.Thread(target=self.disk.processDisk)
                 self.t1.start()
 
 
     def selectOutputDirectoryOld(self, event=None):
         """Select output directory"""
-        dirInit = self.disc.dirOut
-        self.disc.dirOut = tkFileDialog.askdirectory(initialdir=dirInit)
-        self.outDirLabel['text'] = self.disc.dirOut
+        dirInit = self.disk.dirOut
+        self.disk.dirOut = tkFileDialog.askdirectory(initialdir=dirInit)
+        self.outDirLabel['text'] = self.disk.dirOut
 
 
     def selectOutputDirectory(self, event=None):
         """Select output directory"""
-        dirInit = self.disc.dirOut
-        self.disc.dirOut = askopendirname(initialdir=dirInit)
-        self.outDirLabel['text'] = self.disc.dirOut
+        dirInit = self.disk.dirOut
+        self.disk.dirOut = askopendirname(initialdir=dirInit)
+        self.outDirLabel['text'] = self.disk.dirOut
 
 
     def importMetadata(self, event=None):
@@ -204,11 +208,11 @@ class omimgrGUI(tk.Frame):
         loadSuccessFlag = True
         """Set prefix, extension, identifier, description, notes
         according to existing metadata file"""
-        metadataFile = os.path.join(self.disc.dirOut, self.disc.metadataFileName)
+        metadataFile = os.path.join(self.disk.dirOut, self.disk.metadataFileName)
 
         if not os.path.isfile(metadataFile):
             metadataFileExists = False
-            msg = ('No metadata file found in directory ' + self.disc.dirOut + '!')
+            msg = ('No metadata file found in directory ' + self.disk.dirOut + '!')
             tkMessageBox.showerror("ERROR", msg)
 
         if metadataFileExists:
@@ -254,7 +258,7 @@ class omimgrGUI(tk.Frame):
             retriesOld = int(self.retries_entry.get().strip())
         except ValueError:
             # Reset if user manually entered something weird
-            retriesOld = int(self.disc.retriesDefault)
+            retriesOld = int(self.disk.retriesDefault)
         retriesNew = max(0, retriesOld - 1)
         self.retries_entry.delete(0, tk.END)
         self.retries_entry.insert(tk.END, str(retriesNew))
@@ -265,10 +269,32 @@ class omimgrGUI(tk.Frame):
             retriesOld = int(self.retries_entry.get().strip())
         except ValueError:
             # Reset if user manually entered something weird
-            retriesOld = int(self.disc.retriesDefault)
+            retriesOld = int(self.disk.retriesDefault)
         retriesNew = retriesOld + 1
         self.retries_entry.delete(0, tk.END)
         self.retries_entry.insert(tk.END, str(retriesNew))
+
+    def decreaseBlocksize(self):
+        """Decrease value of blockSize"""
+        try:
+            blockSizeOld = int(self.blockSize_entry.get().strip())
+        except ValueError:
+            # Reset if user manually entered something weird
+            blockSizeOld = int(self.disk.blockSizeDefault)
+        blockSizeNew = max(blockSizeOld - 512, 512)
+        self.blockSize_entry.delete(0, tk.END)
+        self.blockSize_entry.insert(tk.END, str(blockSizeNew))
+
+    def increaseBlocksize(self):
+        """Increase value of blockSize"""
+        try:
+            blockSizeOld = int(self.blockSize_entry.get().strip())
+        except ValueError:
+            # Reset if user manually entered something weird
+            blockSizeOld = int(self.disk.blockSizeDefault)
+        blockSizeNew = blockSizeOld + 512
+        self.blockSize_entry.delete(0, tk.END)
+        self.blockSize_entry.insert(tk.END, str(blockSizeNew))
 
     def insertUUID(self, event=None):
         """Insert UUID into identifier field"""
@@ -296,17 +322,17 @@ class omimgrGUI(tk.Frame):
                                             command=self.selectOutputDirectory,
                                             width=20)
         self.outDirButton_entry.grid(column=0, row=3, sticky='w')
-        self.outDirLabel = tk.Label(self, text=self.disc.dirOut)
+        self.outDirLabel = tk.Label(self, text=self.disk.dirOut)
         self.outDirLabel.update()
         self.outDirLabel.grid(column=1, row=3, sticky='w')
 
         ttk.Separator(self, orient='horizontal').grid(column=0, row=4, columnspan=4, sticky='ew')
 
         # Device
-        tk.Label(self, text='Optical device').grid(column=0, row=5, sticky='w')
+        tk.Label(self, text='Block device').grid(column=0, row=5, sticky='w')
         self.omDevice_entry = tk.Entry(self, width=20)
         self.omDevice_entry['background'] = 'white'
-        self.omDevice_entry.insert(tk.END, self.disc.omDevice)
+        self.omDevice_entry.insert(tk.END, self.disk.blockDevice)
         self.omDevice_entry.grid(column=1, row=5, sticky='w')
 
         # Interrupt button (disabled on startup)
@@ -318,6 +344,17 @@ class omimgrGUI(tk.Frame):
         self.interrupt_button.grid(column=2, row=5, sticky='e')
         self.interrupt_button.config(state='disabled')
 
+        # Block Size
+        tk.Label(self, text='Block Size').grid(column=0, row=6, sticky='w')
+        self.blockSize_entry = tk.Entry(self, width=20)
+        self.blockSize_entry['background'] = 'white'
+        self.blockSize_entry.insert(tk.END, self.disk.blockSize)
+        self.blockSize_entry.grid(column=1, row=6, sticky='w')
+        self.decreaseBSButton = tk.Button(self, text='-', command=self.decreaseBlocksize, width=1)
+        self.decreaseBSButton.grid(column=1, row=6, sticky='e')
+        self.increaseBSButton = tk.Button(self, text='+', command=self.increaseBlocksize, width=1)
+        self.increaseBSButton.grid(column=2, row=6, sticky='w')
+
         # Read command (readom or ddrescue)
         self.v = tk.IntVar()
         self.v.set(1)
@@ -325,54 +362,54 @@ class omimgrGUI(tk.Frame):
         # List with all possible read methods, corresponding button codes, keyboard
         # shortcut character (keyboard shortcuts not actually used yet)
         self.readMethods = [
-            ['readom', 1, 0],
+            ['dd', 1, 0],
             ['ddrescue', 2, 3],
         ]
 
-        tk.Label(self, text='Read method').grid(column=0, row=6, sticky='w')
+        tk.Label(self, text='Read method').grid(column=0, row=7, sticky='w')
 
-        self.rbReadom = tk.Radiobutton(self,
-                                    text='readom',
+        self.rbDd = tk.Radiobutton(self,
+                                    text='dd',
                                     variable=self.v,
                                     value=1)
-        self.rbReadom.grid(column=1, row=6, sticky='w')
+        self.rbDd.grid(column=1, row=7, sticky='w')
 
         self.rbRescue = tk.Radiobutton(self,
                                     text='ddrescue',
                                     variable=self.v,
                                     value=2)
-        self.rbRescue.grid(column=1, row=7, sticky='w')
+        self.rbRescue.grid(column=1, row=8, sticky='w')
 
         # Retries
-        tk.Label(self, text='Retries').grid(column=0, row=8, sticky='w')
+        tk.Label(self, text='Retries').grid(column=0, row=9, sticky='w')
         self.retries_entry = tk.Entry(self, width=20)
         self.retries_entry['background'] = 'white'
-        self.retries_entry.insert(tk.END, self.disc.retriesDefault)
-        self.retries_entry.grid(column=1, row=8, sticky='w')
+        self.retries_entry.insert(tk.END, self.disk.retriesDefault)
+        self.retries_entry.grid(column=1, row=9, sticky='w')
         self.decreaseRetriesButton = tk.Button(self, text='-',
                                                command=self.decreaseRetries,
                                                width=1)
-        self.decreaseRetriesButton.grid(column=1, row=8, sticky='e')
+        self.decreaseRetriesButton.grid(column=1, row=9, sticky='e')
         self.increaseRetriesButton = tk.Button(self, text='+',
                                                command=self.increaseRetries,
                                                width=1)
-        self.increaseRetriesButton.grid(column=2, row=8, sticky='w')
+        self.increaseRetriesButton.grid(column=2, row=9, sticky='w')
 
         # Direct disc mode
-        tk.Label(self, text='Direct disc mode (ddrescue)').grid(column=0, row=9, sticky='w')
+        tk.Label(self, text='Direct disc mode (ddrescue)').grid(column=0, row=10, sticky='w')
         self.rescueDirectDiscMode = tk.BooleanVar()
-        self.rescueDirectDiscMode.set(self.disc.rescueDirectDiscMode)
+        self.rescueDirectDiscMode.set(self.disk.rescueDirectDiscMode)
         self.rescueDirectDiscMode_entry = tk.Checkbutton(self, variable=self.rescueDirectDiscMode)
-        self.rescueDirectDiscMode_entry.grid(column=1, row=9, sticky='w')
+        self.rescueDirectDiscMode_entry.grid(column=1, row=10, sticky='w')
     
         # Direct disc mode
-        tk.Label(self, text='Auto-retry with ddrescue on readom failure').grid(column=0, row=10, sticky='w')
+        tk.Label(self, text='Auto-retry with ddrescue on dd failure').grid(column=0, row=11, sticky='w')
         self.autoRetry = tk.BooleanVar()
-        self.autoRetry.set(self.disc.autoRetry)
+        self.autoRetry.set(self.disk.autoRetry)
         self.autoRetry_entry = tk.Checkbutton(self, variable=self.autoRetry)
-        self.autoRetry_entry.grid(column=1, row=10, sticky='w')
+        self.autoRetry_entry.grid(column=1, row=11, sticky='w')
 
-        ttk.Separator(self, orient='horizontal').grid(column=0, row=11, columnspan=4, sticky='ew')
+        ttk.Separator(self, orient='horizontal').grid(column=0, row=12, columnspan=4, sticky='ew')
 
         # Load from json
         self.loadJsonButton = tk.Button(self,
@@ -380,70 +417,70 @@ class omimgrGUI(tk.Frame):
                                             underline=0,
                                             command=self.importMetadata,
                                             width=20)
-        self.loadJsonButton.grid(column=0, row=12, sticky='w')
+        self.loadJsonButton.grid(column=0, row=13, sticky='w')
     
         # Prefix
-        tk.Label(self, text='Prefix').grid(column=0, row=13, sticky='w')
+        tk.Label(self, text='Prefix').grid(column=0, row=14, sticky='w')
         self.prefix_entry = tk.Entry(self, width=20)
         self.prefix_entry['background'] = 'white'
-        self.prefix_entry.insert(tk.END, self.disc.prefix)
-        self.prefix_entry.grid(column=1, row=13, sticky='w')
+        self.prefix_entry.insert(tk.END, self.disk.prefix)
+        self.prefix_entry.grid(column=1, row=14, sticky='w')
 
         # Extension
-        tk.Label(self, text='Extension').grid(column=0, row=14, sticky='w')
+        tk.Label(self, text='Extension').grid(column=0, row=15, sticky='w')
         self.extension_entry = tk.Entry(self, width=20)
         self.extension_entry['background'] = 'white'
-        self.extension_entry.insert(tk.END, self.disc.extension)
-        self.extension_entry.grid(column=1, row=14, sticky='w')
+        self.extension_entry.insert(tk.END, self.disk.extension)
+        self.extension_entry.grid(column=1, row=15, sticky='w')
 
         # Identifier entry field
-        tk.Label(self, text='Identifier').grid(column=0, row=15, sticky='w')
+        tk.Label(self, text='Identifier').grid(column=0, row=16, sticky='w')
         self.identifier_entry = tk.Entry(self, width=35)
         self.identifier_entry['background'] = 'white'
-        self.identifier_entry.insert(tk.END, self.disc.identifier)
-        self.identifier_entry.grid(column=1, row=15, sticky='w')
+        self.identifier_entry.insert(tk.END, self.disk.identifier)
+        self.identifier_entry.grid(column=1, row=16, sticky='w')
         self.uuidButton = tk.Button(self, text='UUID',
                                     underline=0, command=self.insertUUID,
                                     width=2)
-        self.uuidButton.grid(column=1, row=15, sticky='e')
+        self.uuidButton.grid(column=1, row=16, sticky='e')
 
         # Description entry field
-        tk.Label(self, text='Description').grid(column=0, row=16, sticky='w')
+        tk.Label(self, text='Description').grid(column=0, row=17, sticky='w')
         self.description_entry = tk.Entry(self, width=45)
         self.description_entry['background'] = 'white'
-        self.description_entry.insert(tk.END, self.disc.description)
-        self.description_entry.grid(column=1, row=16, sticky='w', columnspan=1)
+        self.description_entry.insert(tk.END, self.disk.description)
+        self.description_entry.grid(column=1, row=17, sticky='w', columnspan=1)
 
         # Notes entry field
-        tk.Label(self, text='Notes').grid(column=0, row=17, sticky='w')
+        tk.Label(self, text='Notes').grid(column=0, row=18, sticky='w')
         self.notes_entry = tk.Text(self, height=6, width=45)
         self.notes_entry['background'] = 'white'
-        self.notes_entry.insert(tk.END, self.disc.notes)
-        self.notes_entry.grid(column=1, row=17, sticky='w', columnspan=1)
+        self.notes_entry.insert(tk.END, self.disk.notes)
+        self.notes_entry.grid(column=1, row=18, sticky='w', columnspan=1)
 
-        ttk.Separator(self, orient='horizontal').grid(column=0, row=18, columnspan=4, sticky='ew')
+        ttk.Separator(self, orient='horizontal').grid(column=0, row=19, columnspan=4, sticky='ew')
 
         self.start_button = tk.Button(self,
                                       text='Start',
                                       width=10,
                                       underline=0,
                                       command=self.on_submit)
-        self.start_button.grid(column=1, row=19, sticky='w')
+        self.start_button.grid(column=1, row=20, sticky='w')
 
         self.quit_button = tk.Button(self,
                                      text='Exit',
                                      width=10,
                                      underline=0,
                                      command=self.on_quit)
-        self.quit_button.grid(column=1, row=19, sticky='e')
+        self.quit_button.grid(column=1, row=20, sticky='e')
 
-        ttk.Separator(self, orient='horizontal').grid(column=0, row=20, columnspan=4, sticky='ew')
+        ttk.Separator(self, orient='horizontal').grid(column=0, row=21, columnspan=4, sticky='ew')
 
         # Add ScrolledText widget to display logging info
         self.st = ScrolledText.ScrolledText(self, state='disabled', height=15)
         self.st.configure(font='TkFixedFont')
         self.st['background'] = 'white'
-        self.st.grid(column=0, row=21, sticky='ew', columnspan=4)
+        self.st.grid(column=0, row=22, sticky='ew', columnspan=4)
 
         # Define bindings for keyboard shortcuts: buttons
         self.root.bind_all('<Control-Key-d>', self.selectOutputDirectory)
@@ -457,7 +494,7 @@ class omimgrGUI(tk.Frame):
             child.grid_configure(padx=5, pady=5)
 
         # Display message and exit if config file could not be read
-        if not self.disc.configSuccess:
+        if not self.disk.configSuccess:
             msg = ("Error reading configuration file! \n" +
                    "Run '(sudo) diskimgr-config' to fix this.")
             errorExit(msg)
@@ -465,11 +502,11 @@ class omimgrGUI(tk.Frame):
     def reset_gui(self, dirOut):
         """Reset the GUI"""
         # Create new disc instance
-        self.disc = Disc()
+        self.disk = Disk()
         # Read configuration
-        self.disc.getConfiguration()
+        self.disk.getConfiguration()
         # Set dirOut
-        self.disc.dirOut = dirOut
+        self.disk.dirOut = dirOut
         # Set readMethod to readom
         self.v.set(1)
         # Logging stuff
@@ -485,11 +522,13 @@ class omimgrGUI(tk.Frame):
         self.retries_entry.config(state='normal')
         self.decreaseRetriesButton.config(state='normal')
         self.increaseRetriesButton.config(state='normal')
+        self.decreaseBSButton.config(state='normal')
+        self.increaseBSButton.config(state='normal')
         self.rescueDirectDiscMode_entry.config(state='normal')
         self.autoRetry_entry.config(state='normal')
         self.prefix_entry.config(state='normal')
         self.extension_entry.config(state='normal')
-        self.rbReadom.config(state='normal')
+        self.rbDd.config(state='normal')
         self.rbRescue.config(state='normal')
         self.loadJsonButton.config(state='normal')
         self.identifier_entry.config(state='normal')
@@ -499,23 +538,23 @@ class omimgrGUI(tk.Frame):
         self.start_button.config(state='normal')
         self.quit_button.config(state='normal')
         # Reset all entry widgets
-        self.outDirLabel['text'] = self.disc.dirOut
+        self.outDirLabel['text'] = self.disk.dirOut
         self.omDevice_entry.delete(0, tk.END)
-        self.omDevice_entry.insert(tk.END, self.disc.omDevice)
+        self.omDevice_entry.insert(tk.END, self.disk.blockDevice)
         self.retries_entry.delete(0, tk.END)
-        self.retries_entry.insert(tk.END, self.disc.retriesDefault)
+        self.retries_entry.insert(tk.END, self.disk.retriesDefault)
         self.prefix_entry.delete(0, tk.END)
-        self.prefix_entry.insert(tk.END, self.disc.prefix)
+        self.prefix_entry.insert(tk.END, self.disk.prefix)
         self.extension_entry.delete(0, tk.END)
-        self.extension_entry.insert(tk.END, self.disc.extension)
+        self.extension_entry.insert(tk.END, self.disk.extension)
         self.identifier_entry.delete(0, tk.END)
-        self.identifier_entry.insert(tk.END, self.disc.identifier)
+        self.identifier_entry.insert(tk.END, self.disk.identifier)
         self.description_entry.delete(0, tk.END)
-        self.description_entry.insert(tk.END, self.disc.description)
+        self.description_entry.insert(tk.END, self.disk.description)
         self.notes_entry.delete(1.0, tk.END)
-        self.notes_entry.insert(tk.END, self.disc.notes)
-        self.rescueDirectDiscMode.set(self.disc.rescueDirectDiscMode)
-        self.autoRetry.set(self.disc.autoRetry)
+        self.notes_entry.insert(tk.END, self.disk.notes)
+        self.rescueDirectDiscMode.set(self.disk.rescueDirectDiscMode)
+        self.autoRetry.set(self.disk.autoRetry)
         self.start_button.config(state='normal')
         self.quit_button.config(state='normal')
 
@@ -523,7 +562,7 @@ class omimgrGUI(tk.Frame):
         """Set up logger configuration"""
 
         # Basic configuration
-        logging.basicConfig(filename=self.disc.logFile,
+        logging.basicConfig(filename=self.disk.logFile,
                             level=logging.INFO,
                             format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -604,33 +643,33 @@ def main():
             root.update_idletasks()
             root.update()
             time.sleep(0.1)
-            if myGUI.disc.finishedFlag:
+            if myGUI.disk.finishedFlag:
                 myGUI.t1.join()
                 handlers = myGUI.logger.handlers[:]
                 for handler in handlers:
                     handler.close()
                     myGUI.logger.removeHandler(handler)
 
-                if myGUI.disc.omDeviceIOError:
+                if myGUI.disk.omDeviceIOError:
                     # Optical device not accessible
-                    msg = ('Cannot access optical device ' + myGUI.disc.omDevice +
+                    msg = ('Cannot access optical device ' + myGUI.disk.blockDevice +
                            '. Check that device exists.')
                     errorExit(msg)
-                elif myGUI.disc.successFlag and not myGUI.disc.readErrorFlag:
+                elif myGUI.disk.successFlag and not myGUI.disk.readErrorFlag:
                     # Imaging completed with no errors
-                    msg = ('Disc processed without errors')
+                    msg = ('Disk processed without errors')
                     tkMessageBox.showinfo("Success", msg)
-                elif myGUI.disc.readMethod == 'readom' and myGUI.disc.autoRetry:
+                elif myGUI.disk.readMethod == 'readom' and myGUI.disk.autoRetry:
                     # Imaging resulted in errors, auto-retry with ddrescue
                     retryFromReadomFlag = True
-                elif myGUI.disc.readMethod == 'readom' and not myGUI.disc.autoRetry:
+                elif myGUI.disk.readMethod == 'readom' and not myGUI.disk.autoRetry:
                     # Imaging resulted in errors, as if user wants to retry with ddrescue
                     msg = ('Errors occurred while processing this disc\n'
                            'Try again with ddrescue? (This will overwrite\n'
                            'existing image file)')
                     if tkMessageBox.askyesno("Errors", msg):
                         retryFromReadomFlag = True
-                elif myGUI.disc.readMethod == 'ddrescue':
+                elif myGUI.disk.readMethod == 'ddrescue':
                     # Imaging resulted in errors
                     msg = ('One or more errors occurred while processing disc\n'
                            'Try another ddrescue pass? (Hint: you may try using\n'
@@ -640,16 +679,16 @@ def main():
 
                 if retryFromReadomFlag:
                     # Reset flags
-                    myGUI.disc.readErrorFlag = False
-                    myGUI.disc.finishedFlag = False
+                    myGUI.disk.readErrorFlag = False
+                    myGUI.disk.finishedFlag = False
                     # Set readMethod to ddrescue
                     myGUI.v.set(2)
                     myGUI.on_submit()
                     retryFromReadomFlag = False
                 elif retryFromRescueFlag:
                     # Reset flags
-                    myGUI.disc.readErrorFlag = False
-                    myGUI.disc.finishedFlag = False
+                    myGUI.disk.readErrorFlag = False
+                    myGUI.disk.finishedFlag = False
                     # Enable entry widgets
                     myGUI.omDevice_entry.config(state='normal')
                     myGUI.retries_entry.config(state='normal')
@@ -663,7 +702,7 @@ def main():
                 else:
                     # Reset dirOut to parent dir of current value (returns root 
                     # dir if dirOut is root)
-                    dirOutNew = str(Path(myGUI.disc.dirOut).parent)
+                    dirOutNew = str(Path(myGUI.disk.dirOut).parent)
                     # Reset the GUI
                     myGUI.reset_gui(dirOutNew)
 

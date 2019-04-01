@@ -21,8 +21,8 @@ def getReadErrors(rescueLine):
     return readErrors
 
 
-def readom(args):
-    """readom wapper function"""
+def dd(args):
+    """dd wapper function"""
 
     errorFlag = False
     interruptedFlag = False
@@ -37,7 +37,7 @@ def readom(args):
         line = ""
         char = " "
 
-        # Give readom plenty of time to start.
+        # Give dd plenty of time to start.
         time.sleep(2)
 
         # Grab information from readom. (After readom exits, attempt to keep reading chars until
