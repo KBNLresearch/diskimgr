@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 """
-omimgr, automated reading of optical media
+diskimgr, automated reading of optical media
 
 Author: Johan van der Knijff
 Research department,  KB / National Library of the Netherlands

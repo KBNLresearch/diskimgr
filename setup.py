@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Setup script for omimgr"""
+"""Setup script for diskimgr"""
 
 import codecs
 import os
@@ -32,9 +32,9 @@ INSTALL_REQUIRES = [
 
 PYTHON_REQUIRES = '>=3.2'
 
-setup(name='omimgr',
+setup(name='diskimgr',
       packages=find_packages(),
-      version=find_version('omimgr', 'omimgr.py'),
+      version=find_version('diskimgr', 'diskimgr.py'),
       license='Apache License 2.0',
       install_requires=INSTALL_REQUIRES,
       python_requires=PYTHON_REQUIRES,
@@ -45,16 +45,16 @@ setup(name='omimgr',
       author_email='johan.vanderknijff@kb.nl',
       maintainer='Johan van der Knijff',
       maintainer_email='johan.vanderknijff@kb.nl',
-      url='https://github.com/KBNLresearch/omimgr',
-      download_url=('https://github.com/KBNLresearch/omimgr/archive/' +
-                    find_version('omimgr', 'omimgr.py') + '.tar.gz'),
-      package_data={'omimgr': ['*.*', 'icons/*', 'pkexec/*']},
+      url='https://github.com/KBNLresearch/diskimgr',
+      download_url=('https://github.com/KBNLresearch/diskimgr/archive/' +
+                    find_version('diskimgr', 'diskimgr.py') + '.tar.gz'),
+      package_data={'diskimgr': ['*.*', 'icons/*', 'pkexec/*']},
       zip_safe=False,
       entry_points={'gui_scripts': [
-          'omimgr = omimgr.omimgr:main'],
+          'diskimgr = diskimgr.diskimgr:main'],
                     'console_scripts': [
-                        'omimgr = omimgr.omimgr:main',
-                        'omimgr-config = omimgr.configure:main']},
+                        'diskimgr = diskimgr.diskimgr:main',
+                        'diskimgr-config = diskimgr.configure:main']},
       classifiers=[
           'Programming Language :: Python :: 3',]
      )

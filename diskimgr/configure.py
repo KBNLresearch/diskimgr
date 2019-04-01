@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-"""Post-install / configuration script for omimgr"""
+"""Post-install / configuration script for diskimgr"""
 
 import os
 import io
@@ -16,7 +16,7 @@ def parseCommandLine(parser):
                         action='store_true',
                         dest='removeFlag',
                         default=False,
-                        help='remove all omimgr configuration files')
+                        help='remove all diskimgr configuration files')
     # Parse arguments
     args = parser.parse_args()
     return args
@@ -38,20 +38,20 @@ def writeConfigFile(configRootDir, removeFlag):
 
     # Create configuration directory under configRootDir
 
-    configDir = os.path.join(configRootDir, 'omimgr')
+    configDir = os.path.join(configRootDir, 'diskimgr')
 
     if not removeFlag:
         if not os.path.isdir(configDir):
             os.mkdir(configDir)
 
     # Path to configuration file
-    fConfig = os.path.join(configDir, 'omimgr.json')
+    fConfig = os.path.join(configDir, 'diskimgr.json')
 
     # Dictionary with items in configuration file
     configSettings = {}
     configSettings['retries'] = '4'
     configSettings['checksumFileName'] = 'checksums.sha512'
-    configSettings['logFileName'] = 'omimgr.log'
+    configSettings['logFileName'] = 'diskimgr.log'
     configSettings['metadataFileName'] = 'metadata.json'
     configSettings['omDevice'] = '/dev/sr0'
     configSettings['prefix'] = 'disc'
@@ -86,21 +86,21 @@ def writeDesktopFiles(packageDir, applicationsDir, desktopDir, removeFlag):
     pathName = os.path.abspath(os.path.dirname(sys.argv[0]))
 
     # Locate icon file in package
-    iconFile = os.path.join(packageDir, 'icons', 'omimgr.png')
+    iconFile = os.path.join(packageDir, 'icons', 'diskimgr.png')
     if not os.path.isfile(iconFile):
         msg = 'cannot find icon file'
         errorExit(msg)
 
-    fApplications = os.path.join(applicationsDir, 'omimgr.desktop')
+    fApplications = os.path.join(applicationsDir, 'diskimgr.desktop')
 
     # List of desktop file lines
     desktopList = []
     desktopList.append('[Desktop Entry]')
     desktopList.append('Type=Application')
     desktopList.append('Encoding=UTF-8')
-    desktopList.append('Name=omimgr')
+    desktopList.append('Name=diskimgr')
     desktopList.append('Comment=Simple optical media imaging and extraction tool')
-    desktopList.append('Exec=' + os.path.join(pathName, 'omimgr'))
+    desktopList.append('Exec=' + os.path.join(pathName, 'diskimgr'))
     desktopList.append('Icon=' + iconFile)
     desktopList.append('Terminal=false')
     desktopList.append('Categories=Utility;System;GTK')
@@ -123,7 +123,7 @@ def writeDesktopFiles(packageDir, applicationsDir, desktopDir, removeFlag):
 def main():
     """
     Creates the following items:
-    - configuration directory omimgr in ~/.config/ or /etc/
+    - configuration directory diskimgr in ~/.config/ or /etc/
     - configuration file in configuration directory
     - desktop file in  ~/.local/share/applications/ or /usr/share/applications
     If the --remove / -r switch is given the above items
@@ -131,7 +131,7 @@ def main():
     """
 
     # Parse command line
-    parser = argparse.ArgumentParser(description='omimgr configuration tool')
+    parser = argparse.ArgumentParser(description='diskimgr configuration tool')
     args = parseCommandLine(parser)
     removeFlag = args.removeFlag
 
@@ -186,7 +186,7 @@ def main():
 
     writeConfigFile(configRootDir, removeFlag)
     writeDesktopFiles(packageDir, applicationsDir, desktopDir, removeFlag)
-    infoMessage('omimgr configuration completed successfully!')
+    infoMessage('diskimgr configuration completed successfully!')
 
 
 if __name__ == "__main__":

@@ -50,9 +50,9 @@ class Disc:
         packageDir = os.path.dirname(os.path.abspath(__file__))
         homeDir = os.path.normpath(os.path.expanduser("~"))
         if packageDir.startswith(homeDir):
-            self.configFile = os.path.join(homeDir, '.config/omimgr/omimgr.json')
+            self.configFile = os.path.join(homeDir, '.config/diskimgr/diskimgr.json')
         else:
-            self.configFile = os.path.normpath('/etc/omimgr/omimgr.json')
+            self.configFile = os.path.normpath('/etc/diskimgr/diskimgr.json')
 
         # Miscellaneous attributes
         self.logFile = ''
@@ -167,10 +167,10 @@ class Disc:
 
         # Write some general info to log file
         logging.info('***************************')
-        logging.info('*** OMIMGR EXTRACTION LOG ***')
+        logging.info('*** DISKIMGR EXTRACTION LOG ***')
         logging.info('***************************\n')
         logging.info('*** USER INPUT ***')
-        logging.info('omimgrVersion: ' + config.version)
+        logging.info('diskimgrVersion: ' + config.version)
         logging.info('dirOut: ' + self.dirOut)
         logging.info('omDevice: ' + self.omDevice)
         logging.info('readMethod: ' + self.readMethod)
@@ -246,7 +246,7 @@ class Disc:
         metadata['identifier'] = self.identifier
         metadata['description'] = self.description
         metadata['notes'] = self.notes
-        metadata['omimgrVersion'] = config.version
+        metadata['diskimgrVersion'] = config.version
         metadata['omDevice'] = self.omDevice
         metadata['readMethod'] = self.readMethod
         if self.readMethod == "readom":

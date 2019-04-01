@@ -2,7 +2,7 @@
 
 """Wrapper script, ensures that relative imports work correctly in a PyInstaller build"""
 
-from omimgr.omimgr import main
+from diskimgr.diskimgr import main
 
 if __name__ == '__main__':
     main()

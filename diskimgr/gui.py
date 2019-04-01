@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 """
-ommgr, automated reading of optical media
+diskimgr, automated reading of optical media
 Graphical user interface
 
 Author: Johan van der Knijff
@@ -56,7 +56,7 @@ class omimgrGUI(tk.Frame):
         self.build_gui()
 
     def on_quit(self, event=None):
-        """Quit omimgr"""
+        """Quit diskimgr"""
         os._exit(0)
 
     def on_submit(self, event=None):
@@ -279,7 +279,7 @@ class omimgrGUI(tk.Frame):
     def build_gui(self):
         """Build the GUI"""
 
-        self.root.title('omimgr v.' + config.version)
+        self.root.title('diskimgr v.' + config.version)
         self.root.option_add('*tearOff', 'FALSE')
         self.grid(column=0, row=0, sticky='w')
         self.grid_columnconfigure(0, weight=1, pad=0)
@@ -459,7 +459,7 @@ class omimgrGUI(tk.Frame):
         # Display message and exit if config file could not be read
         if not self.disc.configSuccess:
             msg = ("Error reading configuration file! \n" +
-                   "Run '(sudo) omimgr-config' to fix this.")
+                   "Run '(sudo) diskimgr-config' to fix this.")
             errorExit(msg)
 
     def reset_gui(self, dirOut):
@@ -592,7 +592,7 @@ def main():
 
     packageDir = os.path.dirname(os.path.abspath(__file__))
     root = tk.Tk()
-    root.iconphoto(True, tk.PhotoImage(file=os.path.join(packageDir, 'icons', 'omimgr.png')))
+    root.iconphoto(True, tk.PhotoImage(file=os.path.join(packageDir, 'icons', 'diskimgr.png')))
     myGUI = omimgrGUI(root)
     # This ensures application quits normally if user closes window
     root.protocol('WM_DELETE_WINDOW', myGUI.on_quit)
