@@ -252,23 +252,3 @@ def getVersion(args):
             versionString = line.strip()
     
     return versionString
-
-def ejectDrive(drivePath):
-    """Eject drive"""
-
-    args = ['eject', drivePath]
-
-    try:
-        p = sub.Popen(args, stdout=sub.PIPE, stderr=sub.PIPE, shell=False)
-        output, errors = p.communicate()
-
-        exitStatus = p.returncode
-
-    except Exception:
-        # I don't even want to to start thinking how one might end up here ...
-        exitStatus = -99
-
-    cmdName = args[0]
-    
-    return exitStatus
-

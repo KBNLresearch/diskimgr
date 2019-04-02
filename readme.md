@@ -23,19 +23,13 @@
 
 ## Installation
 
-### Preparation: give non-root user permission to run readom
+### Preparation: give non-root user permission to run dd
 
-The *readom* documentation recommends to always run *readom* as root. To allow a non-root user to run *readom*, you must give them the permissions to do so using the two simple steps below (source [here](https://www.cyberciti.biz/tips/allow-non-root-user-to-write-cds.html); note that I'm not entirely sure step 1 is even necessary):
+By default, running *dd* on a Linux system requires root access. To allow a non-root user to run *dd*, you must give them the permissions to do so by adding the user to the *disk* group. You can do this with the command below (replace $USER with the name of the user who will be using *diskimgr*):
 
-1. Set SUID-root on *wodim* (this is the package that contains *readom*):
+        sudo adduser $USER disk
 
-        sudo dpkg-reconfigure wodim
-
-2. Add user to *cdrom* group (replace $USER with the name of the user who will be using *diskimgr*):
-
-        sudo adduser $USER cdrom
-
-The user is now added to the 'cdrom' system group. Now log out, and then log in again for the changes to take effect.
+The user is now added to the 'disk' system group. Now log out, and then log in again for the changes to take effect.
 
 ### Global install
 

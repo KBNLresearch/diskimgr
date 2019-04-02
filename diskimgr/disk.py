@@ -12,7 +12,6 @@ import logging
 import glob
 import pathlib
 from shutil import which
-from isolyzer import isolyzer
 from . import wrappers
 from . import config
 from . import shared
@@ -43,7 +42,6 @@ class Disk:
         self.dirOutIsDirectory = False
         self.outputExistsFlag = False
         self.deviceExistsFlag = False
-        self.discInTrayFlag = False
         self.dirOutIsWritable = False
         # Flags that define if dependencies are installed
         self.ddrescueInstalled = False
@@ -69,8 +67,6 @@ class Disk:
         self.interruptedFlag = False
         self.readErrorFlag = False
         self.configSuccess = True
-        self.isolyzerSuccess = False
-        self.imageTruncated = True
         self.timeZone = ''
         self.defaultDir = ''
 
@@ -112,19 +108,6 @@ class Disk:
             except KeyError:
                 self.configSuccess = False
 
-    def getTrayStatus(self, drivePath):
-        """Return status of CD tray, adapted from https://superuser.com/a/1367091/681049
-        Statuses:
-        1 = no disk in tray
-        2 = tray open
-        3 = reading tray
-        4 = disk in tray
-        """
-        fd = os.open(drivePath, os.O_RDONLY | os.O_NONBLOCK)
-        status = fcntl.ioctl(fd, 0x5326)
-        os.close(fd)
-
-        return status
 
     def validateInput(self):
         """Validate and pre-process input"""
@@ -154,10 +137,6 @@ class Disk:
         p = pathlib.Path(self.blockDevice)
         self.deviceExistsFlag = p.is_block_device()
 
-        # Check if disc is in tray
-        if self.getTrayStatus(self.blockDevice) == 4:
-            self.discInTrayFlag = True
-
         # Image file
         self.imageFile = os.path.join(self.dirOut, self.prefix + '.' + self.extension)
 
@@ -186,60 +165,36 @@ class Disk:
         logging.info('prefix: ' + self.prefix)
         logging.info('extension: ' + self.extension)
         logging.info('direct disc mode (ddrescue only): ' + str(self.rescueDirectDiscMode))
-        logging.info('automatically retry with ddrecue on dd failure: ' + str(self.autoRetry))
+        logging.info('automatically retry with ddrescue on dd failure: ' + str(self.autoRetry))
 
         ## Acquisition start date/time
         acquisitionStart = shared.generateDateTime(self.timeZone)
 
-        # Unmount disc
+        # Unmount disk
         args = ['umount', self.blockDevice]
         wrappers.umount(args)
 
         if self.readMethod == "dd":
             args = ['dd']
-            args.append('retries=' + str(self.retries))
-            args.append('dev=' + self.blockDevice)
-            args.append('f=' + self.imageFile)
+            args.append('if=' + self.blockDevice)
+            args.append('of=' + self.imageFile)
+            args.append('bs=' + str(self.blockSize))
+            args.append('conv=notrunc')
             readCmdLine, readExitStatus, self.readErrorFlag, self.interruptedFlag = wrappers.dd(args)
         elif self.readMethod == "ddrescue":
             args = ['ddrescue']
             if self.rescueDirectDiscMode:
                 args.append('-d')
             args.append('-b')
-            args.append('2048')
+            args.append(str(self.blockSize))
             args.append('-r' + str(self.retries))
             args.append('-v')
             args.append(self.blockDevice)
             args.append(self.imageFile)
             args.append(self.mapFile)
             readCmdLine, readExitStatus, self.readErrorFlag, self.interruptedFlag = wrappers.ddrescue(args)
-
-        # Run isolyzer to verify if ISO is complete and extract volume identifier text string
-        try:
-            isolyzerResult = isolyzer.processImage(self.imageFile, 0)
-            # Isolyzer status
-            try:
-                if isolyzerResult.find('statusInfo/success').text == "True":
-                    self.isolyzerSuccess = True
-                else:
-                    self.isolyzerSuccess = False
-            except AttributeError:
-                self.isolyzerSuccess = False
-
-            # Is ISO image smaller than expected (if True, this indicates the image may be truncated)
-            try:
-                self.imageTruncated = isolyzerResult.find('tests/smallerThanExpected').text
-            except AttributeError:
-                self.imageTruncated = True
-
-        except IOError:
-            self.isolyzerSuccess = False
-            self.imageTruncated = True
         
-        logging.info('isolyzerSuccess: ' + str(self.isolyzerSuccess))
-        logging.info('imageTruncated: ' + str(self.imageTruncated))
-        
-        if self.readErrorFlag or self.interruptedFlag or self.imageTruncated or not self.isolyzerSuccess:
+        if self.readErrorFlag or self.interruptedFlag:
             self.successFlag = False
 
         # Create checksum file
@@ -270,8 +225,6 @@ class Disk:
         metadata['acquisitionStart'] = acquisitionStart
         metadata['acquisitionEnd'] = acquisitionEnd
         metadata['successFlag'] = self.successFlag
-        metadata['isolyzerSuccess'] = self.isolyzerSuccess
-        metadata['imageTruncated'] = self.imageTruncated
         metadata['interruptedFlag'] = self.interruptedFlag
         metadata['checksums'] = checksums
         metadata['checksumType'] = 'SHA-512'
@@ -289,9 +242,7 @@ class Disk:
         logging.info('Success: ' + str(self.successFlag))
 
         if self.successFlag:
-            wrappers.ejectDrive(self.blockDevice)
             logging.info('Disk processed without errors')
-            logging.info('Ejecting disc')
         else:
             logging.error('One or more errors occurred while processing disc, '
                           'check log file for details')

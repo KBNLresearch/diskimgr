@@ -71,6 +71,7 @@ class omimgrGUI(tk.Frame):
 
         # Fetch entered values (strip any leading / trailing whitespace characters)
         self.disk.blockDevice = self.omDevice_entry.get().strip()
+        self.disk.blockSize = self.blockSize_entry.get().strip()
 
         # Lookup readMethod for readMethodCode value
         readMethodCode = self.v.get()
@@ -104,11 +105,6 @@ class omimgrGUI(tk.Frame):
         if not self.disk.deviceExistsFlag:
             inputValidateFlag = False
             msg = ('Selected device is not accessible')
-            tkMessageBox.showerror("ERROR", msg)
-
-        if not self.disk.discInTrayFlag:
-            inputValidateFlag = False
-            msg = ('No disc in tray')
             tkMessageBox.showerror("ERROR", msg)
 
         if not self.disk.ddInstalled:
@@ -167,6 +163,7 @@ class omimgrGUI(tk.Frame):
                 self.retries_entry.config(state='disabled')
                 self.decreaseRetriesButton.config(state='disabled')
                 self.increaseRetriesButton.config(state='disabled')
+                self.blockSize_entry.config(state='disabled')
                 self.decreaseBSButton.config(state='disabled')
                 self.increaseBSButton.config(state='disabled')
                 self.rescueDirectDiscMode_entry.config(state='disabled')
@@ -522,6 +519,7 @@ class omimgrGUI(tk.Frame):
         self.retries_entry.config(state='normal')
         self.decreaseRetriesButton.config(state='normal')
         self.increaseRetriesButton.config(state='normal')
+        self.blockSize_entry.config(state='normal')
         self.decreaseBSButton.config(state='normal')
         self.increaseBSButton.config(state='normal')
         self.rescueDirectDiscMode_entry.config(state='normal')
