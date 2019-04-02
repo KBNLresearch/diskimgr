@@ -24,6 +24,7 @@ from tkinter import messagebox as tkMessageBox
 from tkinter import ttk
 from tkfilebrowser import askopendirname
 from .disk import Disk
+from . import shared
 from . import config
 
 
@@ -327,13 +328,15 @@ class omimgrGUI(tk.Frame):
         ttk.Separator(self, orient='horizontal').grid(column=0, row=4, columnspan=4, sticky='ew')
 
         # Device
+        devices = shared.getBlockDevices()
+        self.DEVICES = []
+        for device in devices:
+            # Display both device with its corresponding size
+            self.DEVICES.append(device[0] + ' (' + device[1] + ')')
         tk.Label(self, text='Block device').grid(column=0, row=5, sticky='w')
-        #self.omDevice_entry = tk.Entry(self, width=20)
-        self.DEVICES = ['/dev/sdb', '/dev/sr0']
         self.bdVar = tk.StringVar()
         self.bdVar.set(self.DEVICES[0])
         self.omDevice_entry = tk.OptionMenu(self, self.bdVar, *self.DEVICES)
-        #self.omDevice_entry['background'] = 'white'
         self.omDevice_entry.grid(column=1, row=5, sticky='w')
 
         # Interrupt button (disabled on startup)
