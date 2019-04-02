@@ -70,7 +70,8 @@ class omimgrGUI(tk.Frame):
         inputValidateFlag = True
 
         # Fetch entered values (strip any leading / trailing whitespace characters)
-        self.disk.blockDevice = self.omDevice_entry.get().strip()
+        #self.disk.blockDevice = self.omDevice_entry.get().strip()
+        self.disk.blockDevice =  self.bdVar.get()
         self.disk.blockSize = self.blockSize_entry.get().strip()
 
         # Lookup readMethod for readMethodCode value
@@ -327,9 +328,12 @@ class omimgrGUI(tk.Frame):
 
         # Device
         tk.Label(self, text='Block device').grid(column=0, row=5, sticky='w')
-        self.omDevice_entry = tk.Entry(self, width=20)
-        self.omDevice_entry['background'] = 'white'
-        self.omDevice_entry.insert(tk.END, self.disk.blockDevice)
+        #self.omDevice_entry = tk.Entry(self, width=20)
+        self.DEVICES = ['/dev/sdb', '/dev/sr0']
+        self.bdVar = tk.StringVar()
+        self.bdVar.set(self.DEVICES[0])
+        self.omDevice_entry = tk.OptionMenu(self, self.bdVar, *self.DEVICES)
+        #self.omDevice_entry['background'] = 'white'
         self.omDevice_entry.grid(column=1, row=5, sticky='w')
 
         # Interrupt button (disabled on startup)
@@ -537,8 +541,8 @@ class omimgrGUI(tk.Frame):
         self.quit_button.config(state='normal')
         # Reset all entry widgets
         self.outDirLabel['text'] = self.disk.dirOut
-        self.omDevice_entry.delete(0, tk.END)
-        self.omDevice_entry.insert(tk.END, self.disk.blockDevice)
+        self.bdVar.set(self.DEVICES[0])
+        self.omDevice_entry = tk.OptionMenu(self, self.bdVar, *self.DEVICES)
         self.retries_entry.delete(0, tk.END)
         self.retries_entry.insert(tk.END, self.disk.retriesDefault)
         self.prefix_entry.delete(0, tk.END)
