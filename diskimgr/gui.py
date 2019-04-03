@@ -362,7 +362,7 @@ class omimgrGUI(tk.Frame):
         self.increaseBSButton = tk.Button(self, text='+', command=self.increaseBlocksize, width=1)
         self.increaseBSButton.grid(column=2, row=6, sticky='w')
 
-        # Read command (readom or ddrescue)
+        # Read command (dd or ddrescue)
         self.v = tk.IntVar()
         self.v.set(1)
 
@@ -643,7 +643,7 @@ def main():
     myGUI = omimgrGUI(root)
     # This ensures application quits normally if user closes window
     root.protocol('WM_DELETE_WINDOW', myGUI.on_quit)
-    retryFromReadomFlag = False
+    retryFromDdFlag = False
     retryFromRescueFlag = False
 
     while True:
@@ -658,7 +658,7 @@ def main():
                     handler.close()
                     myGUI.logger.removeHandler(handler)
 
-                if myGUI.disk.omDeviceIOError:
+                if myGUI.disk.deviceIOError:
                     # Optical device not accessible
                     msg = ('Cannot access optical device ' + myGUI.disk.blockDevice +
                            '. Check that device exists.')
@@ -667,16 +667,16 @@ def main():
                     # Imaging completed with no errors
                     msg = ('Disk processed without errors')
                     tkMessageBox.showinfo("Success", msg)
-                elif myGUI.disk.readMethod == 'readom' and myGUI.disk.autoRetry:
+                elif myGUI.disk.readMethod == 'dd' and myGUI.disk.autoRetry:
                     # Imaging resulted in errors, auto-retry with ddrescue
-                    retryFromReadomFlag = True
-                elif myGUI.disk.readMethod == 'readom' and not myGUI.disk.autoRetry:
+                    retryFromDdFlag = True
+                elif myGUI.disk.readMethod == 'dd' and not myGUI.disk.autoRetry:
                     # Imaging resulted in errors, as if user wants to retry with ddrescue
                     msg = ('Errors occurred while processing this disc\n'
                            'Try again with ddrescue? (This will overwrite\n'
                            'existing image file)')
                     if tkMessageBox.askyesno("Errors", msg):
-                        retryFromReadomFlag = True
+                        retryFromDdFlag = True
                 elif myGUI.disk.readMethod == 'ddrescue':
                     # Imaging resulted in errors
                     msg = ('One or more errors occurred while processing disc\n'
@@ -685,14 +685,14 @@ def main():
                     if tkMessageBox.askyesno("Errors", msg):
                         retryFromRescueFlag = True
 
-                if retryFromReadomFlag:
+                if retryFromDdFlag:
                     # Reset flags
                     myGUI.disk.readErrorFlag = False
                     myGUI.disk.finishedFlag = False
                     # Set readMethod to ddrescue
                     myGUI.v.set(2)
                     myGUI.on_submit()
-                    retryFromReadomFlag = False
+                    retryFromDdFlag = False
                 elif retryFromRescueFlag:
                     # Reset flags
                     myGUI.disk.readErrorFlag = False
@@ -706,6 +706,7 @@ def main():
                     myGUI.autoRetry_entry.config(state='normal')
                     myGUI.start_button.config(state='normal')
                     myGUI.quit_button.config(state='normal')
+                    myGUI.interrupt_button.config(state='disabled')
                     retryFromRescueFlag = False
                 else:
                     # Reset dirOut to parent dir of current value (returns root 

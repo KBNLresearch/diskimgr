@@ -62,8 +62,8 @@ class Disk:
         self.checksumFileName = ''
         self.metadataFileName = ''
         self.finishedFlag = False
-        self.omDeviceIOError = False
         self.successFlag = True
+        self.deviceIOError = False
         self.interruptedFlag = False
         self.readErrorFlag = False
         self.configSuccess = True
