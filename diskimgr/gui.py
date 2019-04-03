@@ -109,6 +109,11 @@ class omimgrGUI(tk.Frame):
 
         if not self.disk.deviceExistsFlag:
             inputValidateFlag = False
+            msg = ('Selected device does not exist')
+            tkMessageBox.showerror("ERROR", msg)
+
+        if not self.disk.deviceAccessibleFlag:
+            inputValidateFlag = False
             msg = ('Selected device is not accessible')
             tkMessageBox.showerror("ERROR", msg)
 
@@ -661,12 +666,7 @@ def main():
                     handler.close()
                     myGUI.logger.removeHandler(handler)
 
-                if myGUI.disk.deviceIOError:
-                    # Optical device not accessible
-                    msg = ('Cannot access device ' + myGUI.disk.blockDevice +
-                           '. Check that device exists.')
-                    errorExit(msg)
-                elif myGUI.disk.successFlag and not myGUI.disk.readErrorFlag:
+                if myGUI.disk.successFlag and not myGUI.disk.readErrorFlag:
                     # Imaging completed with no errors
                     msg = ('Disk processed without errors')
                     tkMessageBox.showinfo("Success", msg)

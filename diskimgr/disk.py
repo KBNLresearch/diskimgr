@@ -63,7 +63,7 @@ class Disk:
         self.metadataFileName = ''
         self.finishedFlag = False
         self.successFlag = True
-        self.deviceIOError = False
+        self.deviceAccessibleFlag = False
         self.interruptedFlag = False
         self.readErrorFlag = False
         self.configSuccess = True
@@ -136,6 +136,14 @@ class Disk:
         # Check if selected block device exists
         p = pathlib.Path(self.blockDevice)
         self.deviceExistsFlag = p.is_block_device()
+
+        # Check if device is accessible
+        try:
+            fd= os.open(self.blockDevice, os.O_RDONLY)
+            os.close(fd)
+            self.deviceAccessibleFlag = True 
+        except OSError:
+            self.deviceAccessibleFlag = False
 
         # Image file
         self.imageFile = os.path.join(self.dirOut, self.prefix + '.' + self.extension)
