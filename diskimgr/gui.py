@@ -257,6 +257,16 @@ class omimgrGUI(tk.Frame):
                     tkMessageBox.showerror("ERROR", msg)
 
 
+    def refreshDevices(self, event=None):
+        """Refresh list of available devices"""
+        devices = shared.getBlockDevices()
+        DEVICES = []
+        for device in devices:
+            # Display both device with its corresponding size
+            DEVICES.append(device[0] + ' (' + device[1] + ')')
+        
+        self.omDevice_entry.set_menu(*DEVICES)
+
     def interruptImaging(self, event=None):
         """Interrupt imaging process"""
         config.interruptFlag = True
@@ -340,15 +350,25 @@ class omimgrGUI(tk.Frame):
 
         # Device
         devices = shared.getBlockDevices()
-        self.DEVICES = []
+        DEVICES = []
         for device in devices:
             # Display both device with its corresponding size
-            self.DEVICES.append(device[0] + ' (' + device[1] + ')')
-        tk.Label(self, text='Block device').grid(column=0, row=5, sticky='w')
+            DEVICES.append(device[0] + ' (' + device[1] + ')')
         self.bdVar = tk.StringVar()
-        self.bdVar.set(self.DEVICES[0])
-        self.omDevice_entry = tk.OptionMenu(self, self.bdVar, *self.DEVICES)
+        self.bdVar.set(DEVICES[0])
+        self.omDevice_entry = ttk.OptionMenu(self, self.bdVar, *DEVICES)
+        
+        tk.Label(self, text='Block device').grid(column=0, row=5, sticky='w')
         self.omDevice_entry.grid(column=1, row=5, sticky='w')
+
+        # Refresh device list button
+        self.refresh_button = tk.Button(self,
+                                        text='Refresh',
+                                        underline=0,
+                                        command=self.refreshDevices,
+                                        width=4)
+        self.refresh_button.grid(column=2, row=7, sticky='w')
+        #self.refresh_button.config(state='disabled')
 
         # Interrupt button (disabled on startup)
         self.interrupt_button = tk.Button(self,
@@ -555,8 +575,7 @@ class omimgrGUI(tk.Frame):
         self.quit_button.config(state='normal')
         # Reset all entry widgets
         self.outDirLabel['text'] = self.disk.dirOut
-        self.bdVar.set(self.DEVICES[0])
-        self.omDevice_entry = tk.OptionMenu(self, self.bdVar, *self.DEVICES)
+        self.refreshDevices()
         self.retries_entry.delete(0, tk.END)
         self.retries_entry.insert(tk.END, self.disk.retriesDefault)
         self.prefix_entry.delete(0, tk.END)
