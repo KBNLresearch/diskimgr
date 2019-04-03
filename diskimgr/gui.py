@@ -173,6 +173,7 @@ class omimgrGUI(tk.Frame):
                 # Disable data entry widgets
                 self.outDirButton_entry.config(state='disabled')
                 self.omDevice_entry.config(state='disabled')
+                self.refresh_button.config(state='disabled')
                 self.retries_entry.config(state='disabled')
                 self.decreaseRetriesButton.config(state='disabled')
                 self.increaseRetriesButton.config(state='disabled')
@@ -554,6 +555,7 @@ class omimgrGUI(tk.Frame):
         # Enable entry widgets
         self.outDirButton_entry.config(state='normal')
         self.omDevice_entry.config(state='normal')
+        self.refresh_button.config(state='normal')
         self.retries_entry.config(state='normal')
         self.decreaseRetriesButton.config(state='normal')
         self.increaseRetriesButton.config(state='normal')
@@ -729,6 +731,7 @@ def main():
                     myGUI.start_button.config(state='normal')
                     myGUI.quit_button.config(state='normal')
                     myGUI.interrupt_button.config(state='disabled')
+                    myGUI.refresh_button.config(state='normal')
                     retryFromRescueFlag = False
                 else:
                     # Reset dirOut to parent dir of current value (returns root 
