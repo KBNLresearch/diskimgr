@@ -194,6 +194,9 @@ class Disk:
             args.append(self.mapFile)
             readCmdLine, readExitStatus, self.readErrorFlag, self.interruptedFlag = wrappers.ddrescue(args)
         
+        if readExitStatus != 0:
+            self.successFlag = False
+
         if self.readErrorFlag or self.interruptedFlag:
             self.successFlag = False
 
