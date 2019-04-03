@@ -368,17 +368,7 @@ class omimgrGUI(tk.Frame):
                                         underline=0,
                                         command=self.refreshDevices,
                                         width=4)
-        self.refresh_button.grid(column=2, row=7, sticky='w')
-        #self.refresh_button.config(state='disabled')
-
-        # Interrupt button (disabled on startup)
-        self.interrupt_button = tk.Button(self,
-                                          text='Interrupt',
-                                          underline=0,
-                                          command=self.interruptImaging,
-                                          width=8)
-        self.interrupt_button.grid(column=2, row=5, sticky='e')
-        self.interrupt_button.config(state='disabled')
+        self.refresh_button.grid(column=1, row=5, sticky='e')
 
         # Block Size
         tk.Label(self, text='Block Size').grid(column=0, row=6, sticky='w')
@@ -417,7 +407,7 @@ class omimgrGUI(tk.Frame):
         self.rbRescue.grid(column=1, row=8, sticky='w')
 
         # Retries
-        tk.Label(self, text='Retries').grid(column=0, row=9, sticky='w')
+        tk.Label(self, text='Retries (ddrescue)').grid(column=0, row=9, sticky='w')
         self.retries_entry = tk.Entry(self, width=20)
         self.retries_entry['background'] = 'white'
         self.retries_entry.insert(tk.END, self.disk.retriesDefault)
@@ -510,13 +500,22 @@ class omimgrGUI(tk.Frame):
                                      command=self.on_quit)
         self.quit_button.grid(column=1, row=20, sticky='e')
 
-        ttk.Separator(self, orient='horizontal').grid(column=0, row=21, columnspan=4, sticky='ew')
+        # Interrupt button (disabled on startup)
+        self.interrupt_button = tk.Button(self,
+                                          text='Interrupt',
+                                          underline=0,
+                                          command=self.interruptImaging,
+                                          width=8)
+        self.interrupt_button.grid(column=1, row=21, sticky='w')
+        self.interrupt_button.config(state='disabled')
+
+        ttk.Separator(self, orient='horizontal').grid(column=0, row=22, columnspan=4, sticky='ew')
 
         # Add ScrolledText widget to display logging info
         self.st = ScrolledText.ScrolledText(self, state='disabled', height=15)
         self.st.configure(font='TkFixedFont')
         self.st['background'] = 'white'
-        self.st.grid(column=0, row=22, sticky='ew', columnspan=4)
+        self.st.grid(column=0, row=23, sticky='ew', columnspan=4)
 
         # Define bindings for keyboard shortcuts: buttons
         self.root.bind_all('<Control-Key-d>', self.selectOutputDirectory)
@@ -525,6 +524,7 @@ class omimgrGUI(tk.Frame):
         self.root.bind_all('<Control-Key-e>', self.on_quit)
         self.root.bind_all('<Control-Key-u>', self.insertUUID)
         self.root.bind_all('<Control-Key-l>', self.importMetadata)
+        self.root.bind_all('<Control-Key-r>', self.refreshDevices)
           
         for child in self.winfo_children():
             child.grid_configure(padx=5, pady=5)
