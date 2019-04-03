@@ -143,7 +143,10 @@ class omimgrGUI(tk.Frame):
         # can be found (which indicates readom output)
         elif self.disk.outputExistsFlag and self.disk.readMethod == 'ddrescue':
             if not os.path.isfile(self.disk.mapFile):
-                os.remove(self.disk.imageFile)
+                try:
+                    os.remove(self.disk.imageFile)
+                except:
+                    pass
 
         if inputValidateFlag:
 
