@@ -660,7 +660,7 @@ def main():
 
                 if myGUI.disk.deviceIOError:
                     # Optical device not accessible
-                    msg = ('Cannot access optical device ' + myGUI.disk.blockDevice +
+                    msg = ('Cannot access device ' + myGUI.disk.blockDevice +
                            '. Check that device exists.')
                     errorExit(msg)
                 elif myGUI.disk.successFlag and not myGUI.disk.readErrorFlag:
@@ -672,16 +672,16 @@ def main():
                     retryFromDdFlag = True
                 elif myGUI.disk.readMethod == 'dd' and not myGUI.disk.autoRetry:
                     # Imaging resulted in errors, as if user wants to retry with ddrescue
-                    msg = ('Errors occurred while processing this disc\n'
+                    msg = ('Errors occurred while processing this disk\n'
                            'Try again with ddrescue? (This will overwrite\n'
                            'existing image file)')
                     if tkMessageBox.askyesno("Errors", msg):
                         retryFromDdFlag = True
                 elif myGUI.disk.readMethod == 'ddrescue':
                     # Imaging resulted in errors
-                    msg = ('One or more errors occurred while processing disc\n'
+                    msg = ('One or more errors occurred while processing disk\n'
                            'Try another ddrescue pass? (Hint: you may try using\n'
-                           'Direct Disc mode and/or another optical device)')
+                           'Direct Disc mode and/or another reader device)')
                     if tkMessageBox.askyesno("Errors", msg):
                         retryFromRescueFlag = True
 
