@@ -1,7 +1,6 @@
 # diskimgr
 
-**diskimgr** provides a simple GUI-based workflow for making ISO images from optical media (CD-ROMs and DVDs). It wraps around the *readom* (part of [*Cdrkit*](https://en.wikipedia.org/wiki/Cdrkit)) and [*ddrescue*](https://linux.die.net/man/1/ddrescue) tools. After the imaging is done it also generates a checksum file with SHA-512 hashes of the extracted files. 
-
+**diskimgr** provides a simple GUI-based workflow for making disk images of digital media, such as floppy disks, Flash drives and harddisks. It wraps around the [*dd*](https://linux.die.net/man/1/dd) and [*ddrescue*](https://linux.die.net/man/1/ddrescue) tools. After the imaging is done it also generates a checksum file with SHA-512 hashes of the extracted files. 
 
 ## System requirements
 
@@ -13,9 +12,7 @@
 
         sudo apt-get install python3-tk
 
-- **readom**, which is part of the *wodim* package. Use the following command to install it:
-
-        sudo apt install wodim
+- **dd**, which is part of the [*GNU Core Utilities*](https://en.wikipedia.org/wiki/GNU_Core_Utilities).
 
 - **ddrescue**, which can be installed using:
 
@@ -75,19 +72,20 @@ Use the *Select Output Directory* button to navigate to an (empty) directory whe
 
 |Option|Description|
 |:-|:-|
-|**Optical Device**|The optical devices that is used (default: `/dev/nst0`).|
-|**Read method**|The method (application) that is used to read the disc (default: `readom`).|
-|**Retries**|Maximum number of retries (default: `4`).|
-|**Direct disc mode**|Check this option to read a disc in direct disc mode (setting only has effect with *ddrescue*) (disabled by default).|
-|**Auto-retry with ddrescue on readom failure**|This checkbox controls the behaviour with discs that result in read errors with *readom*. If checked, *diskimgr* will automatically re-try such a disc with *ddrescue*. Otherwise, *diskimgr* will first display a confirmation dialog.|
-|**Load existing metadata**|Loads *Prefix*, *Extension*, *Identifier*, *Description* and *Notes* values (see below) from an existing metadata file in the output directory that was created by a previous *diskimgr* session. Useful for re-running discs that were previously interrupted or unfinished. If no metadata file can be found, *diskimgr* will display an error, and the fields can be entered manually|
+|**Block Device**|Select the medium (device) you want to image from the drop-down list. Press the **Refresh** button to refresh the items in the drop-down list|
+|**Block size**|This sets the size of the buffer (in bytes) that is used by *dd* / *ddrescue* default: `512`).|
+|**Read method**|The method (application) that is used to read the medium (default: `dd`).|
+|**Retries**|Maximum number of retries (setting only has effect with *ddrescue*) (default: `4`).|
+|**Direct disc mode**|Check this option to read a medium in direct disc mode (setting only has effect with *ddrescue*) (disabled by default).|
+|**Auto-retry with ddrescue on dd failure**|This checkbox controls the behaviour with media that result in read errors with *dd*. If checked, *diskimgr* will automatically re-try such a medium with *ddrescue*. Otherwise, *diskimgr* will first display a confirmation dialog.|
+|**Load existing metadata**|Loads *Prefix*, *Extension*, *Identifier*, *Description* and *Notes* values (see below) from an existing metadata file in the output directory that was created by a previous *diskimgr* session. Useful for re-running media that were previously interrupted or unfinished. If no metadata file can be found, *diskimgr* will display an error, and the fields can be entered manually|
 |**Prefix**|Output prefix (default: `disc`).|
-|**Extension**|Output file extension (default: `iso`).|
+|**Extension**|Output file extension (default: `img`).|
 |**Identifier**|Unique identifier. You can either enter an existing identifier yourself, or press the *UUID* button to generate a [Universally unique identifier](https://en.wikipedia.org/wiki/Universally_unique_identifier).|
-|**Description**|A text string that describes the disc (e.g. a title that is written on the inlay card).|
-|**Notes**|Any additional info or notes you want to record with the disc.|
+|**Description**|A text string that describes the medium (e.g. a title that is written on the label of a floppy disk).|
+|**Notes**|Any additional info or notes you want to record with the medium.|
 
-Press the *Start* button to start imaging a disc. You can monitor the progress of the extraction procedure in the progress window:
+Press the *Start* button to start imaging a medium. You can monitor the progress of the extraction procedure in the progress window:
 
 ![](./img/diskimgr-2.png)
 
@@ -99,29 +97,29 @@ If the imaging finished without any errors, the output directory now contains th
 
 ![](./img/diskimgr-files.png)
 
-Here, **handbook.iso** is the created ISO image; **checksums.sha512** contains the SHA512 checksums of the image, **metadata.json** contains some basic metadata and **diskimgr.log** is the log file.
+Here, **ksmetingen.img** is the created ISO image; **checksums.sha512** contains the SHA512 checksums of the image, **metadata.json** contains some basic metadata and **diskimgr.log** is the log file.
 
-If *readom*'s attempt to read the disc resulted in any errors, *diskimgr* prompts the user to try again with *ddrescue*:
+If *dd*'s attempt to read the disc resulted in any errors, *diskimgr* prompts the user to try again with *ddrescue*:
 
-![](./img/error-readom.png)
+![](./img/error-dd.png)
 
-After clicking *Yes*, *diskimgr* will delete the disc image that was created by *readom*, and then start *ddrescue*. If *ddrescue* also exits with any errors, it is possible to do one or more additional passes with *ddrescue*:
+After clicking *Yes*, *diskimgr* will delete the disc image that was created by *dd*, and then start *ddrescue*. If *ddrescue* also exits with any errors, it is possible to do one or more additional passes with *ddrescue*:
 
 ![](./img/error-ddrescue.png)
 
-After clicking *Yes*, you can activate *Direct Disc* mode, or select another optical drive. Press the *Start* button again to start reading the disc. Importantly, *diskimgr* does not delete the existing disc image in this case, but it will update it with any additional data that can be rescued from the disc.
+After clicking *Yes*, you can activate *Direct Disc* mode, or select another optical drive. Press the *Start* button again to start reading the medium. Importantly, *diskimgr* does not delete the existing disc image in this case, but it will update it with any additional data that can be rescued from the medium.
 
 Note that *ddrescue* runs result in an additional [*mapfile*](https://www.gnu.org/software/ddrescue/manual/ddrescue_manual.html#Mapfile-structure) (**$prefix.map**). The map file contains information about the recovery status of data blocks, which allows *ddrescue* to resume previously interrupted recovery sessions. 
 
 ## Suggested workflow
 
-In general *readom* is the preferred tool to read a CD-ROM or DVD. However, *readom* does not cope well with discs that are degraded or otherwise damaged. Because of this, the suggested workflow is to first try reading the disc with *readom*. If this results in any errors, try *ddrescue*. If you check the **Auto-retry** box, *diskimgr* will automatically launch *ddrescue* if the initial attempt to read the disc with *readom* failed (i.e. it will not display the confirmation dialog).
+In general *dd* is the preferred tool to read a floppy disk, flash drive or harddisk. However, *dd* does not cope well with discs that are degraded or otherwise damaged. Because of this, the suggested workflow is to first try reading the medium with *dd*. If this results in any errors, try *ddrescue*. If you check the **Auto-retry** box, *diskimgr* will automatically launch *ddrescue* if the initial attempt to read the medium with *dd* failed (i.e. it will not display the confirmation dialog).
 
-It is possible to run multiple subsequent passes with *ddrescue*. If *ddrescue* fails with errors, it sometimes helps to re-run it in *Direct disc* mode (which can be selected from *diskimgr*'s interface). The results can often be further improved by running multiple *ddrescue* passes with different optical devices (e.g. a few different external USB drives).
+It is possible to run multiple subsequent passes with *ddrescue*. If *ddrescue* fails with errors, it sometimes helps to re-run it in *Direct disc* mode (which can be selected from *diskimgr*'s interface). The results can sometimes be further improved by running multiple *ddrescue* passes with different reader devices (e.g. a few USB-connected floppy drives).
 
-## Interrupting readom or ddrescue
+## Interrupting dd or ddrescue
 
-Press the *Interrupt* button to interrupt any running *readom* or *ddrescue* instances. This is particularly useful for *ddrescue* runs, which may require many hours for discs that are badly damaged. Note that interrupting *ddrescue* will not result in any data loss. Interrupting *readom* will generally result in an unreadable ISO image. 
+Press the *Interrupt* button to interrupt any running *dd* or *ddrescue* instances. This is particularly useful for *ddrescue* runs, which may require many hours for media that are badly damaged. Note that interrupting *ddrescue* will not result in any data loss. Interrupting *dd* will generally result in an unreadable image file. 
 
 ## Resuming an interrupted ddrescue run
 
