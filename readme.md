@@ -97,7 +97,7 @@ If the imaging finished without any errors, the output directory now contains th
 
 ![](./img/diskimgr-files.png)
 
-Here, **ksmetingen.img** is the created ISO image; **checksums.sha512** contains the SHA512 checksums of the image, **metadata.json** contains some basic metadata and **diskimgr.log** is the log file.
+Here, **ks.img** is the created ISO image; **checksums.sha512** contains the SHA512 checksums of the image, **metadata.json** contains some basic metadata and **diskimgr.log** is the log file.
 
 If *dd*'s attempt to read the disc resulted in any errors, *diskimgr* prompts the user to try again with *ddrescue*:
 
@@ -138,37 +138,33 @@ Follow these steps to resume a *ddrescue* run that was previously interrupted:
 The file *metadata.json* contains metadata in JSON format. Below is an example:
 
     {
-        "acquisitionEnd": "2019-03-20T15:22:37.449475+01:00",
-        "acquisitionStart": "2019-03-20T15:22:28.074038+01:00",
-        "autoRetry": true,
+        "acquisitionEnd": "2019-04-04T17:53:11.489543+02:00",
+        "acquisitionStart": "2019-04-04T17:52:29.692731+02:00",
+        "autoRetry": false,
+        "blockDevice": "/dev/sdb",
         "checksumType": "SHA-512",
         "checksums": {
-            "handbook.iso": "20eb93d8d0fa7fe24bd4debba6a0f1556c09a1b1c3a753bbf0d39445e72c3569e69e813c845629e1165ce57aa6d19ccb2b1a9df1a88fea9e7e464f6893fc7d02"
+            "ks.img": "79a17d3fa536b8fa750257b01d05124dadb888f1171e9ca5cc3398a2c16de81b1687b52c70135b966409a723ef5f3960536a6e994847c5ebe7d5eaffefa62dc7"
         },
-        "description": "Preservation Management of Digital Materials",
-        "extension": "iso",
-        "identifier": "4148d87e-4b1b-11e9-a843-dc4a3e5f53bf",
-        "imageTruncated": false,
+        "description": "KS metingen origineel",
+        "diskimgrVersion": "0.1.0b1",
+        "extension": "img",
+        "identifier": "5b159d32-56f1-11e9-9abb-2c4138b5272c",
         "interruptedFlag": false,
-        "isolyzerSuccess": true,
         "maxRetries": "4",
-        "notes": "System requirements:\n\n- IBM compatible PC or Apple Macintosh\n- MS Windows 95 or OS 7 or above",
-        "omDevice": "/dev/sr0",
-        "omimgrVersion": "0.1.0b2",
-        "prefix": "handbook",
-        "readCommandLine": "readom retries=4 dev=/dev/sr0 f=/home/johan/test/handbook.iso",
-        "readMethod": "readom",
-        "readMethodVersion": "readom 1.1.11 (Linux)",
+        "notes": "",
+        "prefix": "ks",
+        "readCommandLine": "dd if=/dev/sdb of=/home/bcadmin/test/1/ks.img bs=512 conv=notrunc",
+        "readMethod": "dd",
+        "readMethodVersion": "dd (coreutils) 8.28",
         "rescueDirectDiscMode": false,
         "successFlag": true
     }
 
 Most of these fields are self-explanatory, but the following need some further explanation:
 
-- **imageTruncated** is a Boolean flag that is *true* if the ISO image is smaller than expected (which is an indication that the image is truncated/incomplete), and *false*. Its value is based on an analysis of the image with the [*Isolyzer*](https://github.com/KBNLresearch/isolyzer) tool.
-- **isolyzerSuccess** is a Boolean flag that is *true* if *Isolyzer* ran successfully, and *false* otherwise.
-- **interruptedFlag** is a Boolean flag that is *true* if *readom* or *ddrescue* were interrupted, and *false* otherwise.
-- **successFlag** is a Boolean flag that is *true* if the disc was imaged without any problems, and *false* otherwise.
+- **interruptedFlag** is a Boolean flag that is *true* if *dd* or *ddrescue* were interrupted, and *false* otherwise.
+- **successFlag** is a Boolean flag that is *true* if the medium was imaged without any problems, and *false* otherwise.
 
 ## Configuration file
 
@@ -176,14 +172,14 @@ Most of these fields are self-explanatory, but the following need some further e
 
     {
         "autoRetry": "False",
+        "blockSize": "512",
         "checksumFileName": "checksums.sha512",
         "defaultDir": "",
-        "extension": "iso",
+        "extension": "img",
         "logFileName": "diskimgr.log",
         "metadataFileName": "metadata.json",
-        "omDevice": "/dev/sr0",
         "prefix": "disc",
-        "readCommand": "readom",
+        "readCommand": "dd",
         "rescueDirectDiscMode": "False",
         "retries": "4",
         "timeZone": "Europe/Amsterdam"
