@@ -222,7 +222,7 @@ For a user install use this:
 
 ## Contributors
 
-Written by Johan van der Knijff. Some parts of the code that processes ddrescue's and readom's terminal output were adapted from [DDRescue-GUI](https://launchpad.net/ddrescue-gui) by Hamish McIntyre-Bhatty.
+Written by Johan van der Knijff. Some parts of the code that processes ddrescue's terminal output were adapted from [DDRescue-GUI](https://launchpad.net/ddrescue-gui) by Hamish McIntyre-Bhatty.
 
 ## License
 
