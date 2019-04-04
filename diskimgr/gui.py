@@ -53,10 +53,7 @@ class omimgrGUI(tk.Frame):
             self.disk.dirOut = self.disk.defaultDir
         else:
             self.disk.dirOut = os.path.expanduser("~")
-        ## TEST
-        print(self.disk.timeZone)
-        print(self.disk.rescueDirectDiscMode)
-        ## TEST
+
         # Build the GUI
         self.build_gui()
 
