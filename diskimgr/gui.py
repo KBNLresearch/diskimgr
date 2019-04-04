@@ -114,6 +114,12 @@ class omimgrGUI(tk.Frame):
             msg = ('Selected device is not accessible')
             tkMessageBox.showerror("ERROR", msg)
 
+        if self.disk.insufficientSpaceFlag:
+            inputValidateFlag = False
+            msg = ('Size of ' + self.disk.blockDevice + 
+                   ' exceeds available space in ' + self.disk.dirOut)
+            tkMessageBox.showerror("ERROR", msg)
+
         if not self.disk.ddInstalled:
             inputValidateFlag = False
             msg = ("dd not installed!")

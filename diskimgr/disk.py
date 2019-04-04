@@ -43,6 +43,7 @@ class Disk:
         self.outputExistsFlag = False
         self.deviceExistsFlag = False
         self.dirOutIsWritable = False
+        self.insufficientSpaceFlag = False
         # Flags that define if dependencies are installed
         self.ddrescueInstalled = False
         self.ddInstalled = False
@@ -139,6 +140,13 @@ class Disk:
             self.deviceAccessibleFlag = True 
         except OSError:
             self.deviceAccessibleFlag = False
+
+        # Check size of block device against available disk space
+        sizeDevice = shared.getDeviceSize(self.blockDevice)
+        st = os.statvfs(self.dirOut)
+        sizeAvailable = st.f_bavail * st.f_frsize
+        if sizeDevice >= sizeAvailable:
+            self.insufficientSpaceFlag = True
 
         # Image file
         self.imageFile = os.path.join(self.dirOut, self.prefix + '.' + self.extension)

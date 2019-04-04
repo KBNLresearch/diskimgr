@@ -74,14 +74,23 @@ def sizeof_fmt(num, suffix='B'):
         num /= 1024.0
     return "%.1f%s%s" % (num, 'Yi', suffix)
 
+def getDeviceSize(devPath):
+    """Return size of device in bytes"""
+    req = 0x80081272 # BLKGETSIZE64, result is bytes as unsigned 64-bit integer (uint64)
+    buf = ' ' * 8
+    fmt = 'L'
+
+    with open(devPath) as dev:
+        buf = fcntl.ioctl(dev.fileno(), req, buf)
+    noBytes = struct.unpack(fmt, buf)[0]
+    return noBytes
+
 def getBlockDevices():
     """
     Return information about block devices and underlying partitions
     Source: adapted from https://codereview.stackexchange.com/a/152527
     """
-    req = 0x80081272 # BLKGETSIZE64, result is bytes as unsigned 64-bit integer (uint64)
-    buf = ' ' * 8
-    fmt = 'L'
+
     deviceInfo = []
 
     # Devices
@@ -90,9 +99,7 @@ def getBlockDevices():
         deviceName = basename(dirname(d))
         devicePath = '/dev/' + deviceName
         try:
-            with open(devicePath) as dev:
-                buf = fcntl.ioctl(dev.fileno(), req, buf)
-            noBytes = struct.unpack(fmt, buf)[0]
+            noBytes = getDeviceSize(devicePath)
             deviceInfo.append([devicePath, sizeof_fmt(noBytes)])
         except OSError:
             pass
@@ -102,9 +109,7 @@ def getBlockDevices():
         for p in glob.glob(partition_glob):
             devicePath = '/dev/' + basename(dirname(p))
             try:
-                with open(devicePath) as dev:
-                    buf = fcntl.ioctl(dev.fileno(), req, buf)
-                noBytes = struct.unpack(fmt, buf)[0]
+                noBytes = getDeviceSize(devicePath)
                 deviceInfo.append([devicePath, sizeof_fmt(noBytes)])
             except OSError:
                 pass
