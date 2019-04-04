@@ -92,7 +92,6 @@ class Disk:
                 self.logFileName = configDict['logFileName']
                 self.checksumFileName = configDict['checksumFileName']
                 self.metadataFileName = configDict['metadataFileName']
-                self.blockDevice = configDict['blockDevice']
                 self.blockSize = configDict['blockSize']
                 self.blockSizeDefault = self.blockSize
                 self.prefix = configDict['prefix']

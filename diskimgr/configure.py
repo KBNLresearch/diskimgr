@@ -53,7 +53,6 @@ def writeConfigFile(configRootDir, removeFlag):
     configSettings['checksumFileName'] = 'checksums.sha512'
     configSettings['logFileName'] = 'diskimgr.log'
     configSettings['metadataFileName'] = 'metadata.json'
-    configSettings['blockDevice'] = '/dev/sr0'
     configSettings['blockSize'] = '512'
     configSettings['prefix'] = 'disc'
     configSettings['extension'] = 'img'

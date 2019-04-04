@@ -74,9 +74,6 @@ class omimgrGUI(tk.Frame):
         #self.disk.blockDevice = self.omDevice_entry.get().strip()
         self.disk.blockDevice =  self.bdVar.get().split(' (')[0].strip()
         self.disk.blockSize = self.blockSize_entry.get().strip()
-        ## TEST
-        print(self.disk.blockDevice)
-        ## TEST
 
         # Lookup readMethod for readMethodCode value
         readMethodCode = self.v.get()
