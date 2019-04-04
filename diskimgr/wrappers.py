@@ -27,6 +27,11 @@ def dd(args):
     errorFlag = False
     interruptedFlag = False
 
+    # Logging
+    cmdName = args[0]
+    cmdLine = ' '.join(args)
+    logging.info('Command: ' + cmdLine)
+
     try:
         p = sub.Popen(args, stdout=sub.PIPE, stderr=sub.PIPE,
                       shell=False, bufsize=1, universal_newlines=True)
@@ -86,11 +91,6 @@ def dd(args):
         # I don't even want to to start thinking how one might end up here ...
         exitStatus = -99
 
-    # Logging
-    cmdName = args[0]
-    cmdLine = ' '.join(args)
-    logging.info('Command: ' + cmdLine)
-
     if exitStatus == 0:
         logging.info(cmdName + ' status: ' + str(exitStatus))
         logging.info(cmdName + ' errorFlag: ' + str(errorFlag))
@@ -107,6 +107,11 @@ def ddrescue(args):
     errorFlag = False
     interruptedFlag = False
     readErrors = 0
+
+    # Logging
+    cmdName = args[0]
+    cmdLine = ' '.join(args)
+    logging.info('Command: ' + cmdLine)
 
     try:
         p = sub.Popen(args, stdout=sub.PIPE, stderr=sub.PIPE,
@@ -176,11 +181,6 @@ def ddrescue(args):
     if readErrors != 0:
         errorFlag = True
 
-    # Logging
-    cmdName = args[0]
-    cmdLine = ' '.join(args)
-    logging.info('Command: ' + cmdLine)
-
     if exitStatus == 0:
         logging.info(cmdName + ' status: ' + str(exitStatus))
         logging.info(cmdName + ' errorFlag: ' + str(errorFlag))
@@ -193,6 +193,12 @@ def ddrescue(args):
 
 def umount(args):
     """umount wapper function"""
+
+    # Logging
+    cmdName = args[0]
+    cmdLine = ' '.join(args)
+    logging.info('Command: ' + cmdLine)
+
     try:
         p = sub.Popen(args, stdout=sub.PIPE, stderr=sub.PIPE, shell=False)
         output, errors = p.communicate()
@@ -208,11 +214,6 @@ def umount(args):
         exitStatus = -99
         outputAsString = ""
         errorsAsString = ""
-
-    # Logging
-    cmdName = args[0]
-    cmdLine = ' '.join(args)
-    logging.info('Command: ' + cmdLine)
 
     # Umount returns exit status 1 if device not mounted. This is no reason
     # for any concern, so don't report this as an error in the log.

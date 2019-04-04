@@ -82,10 +82,6 @@ class Disk:
         except:
             self.configSuccess = False
 
-        ## TEST
-        print(self.configSuccess)
-        ## TEST
-
         if self.configSuccess:
             # Update class variables
             try:
@@ -178,9 +174,11 @@ class Disk:
         acquisitionStart = shared.generateDateTime(self.timeZone)
 
         # Unmount disk
+        logging.info('*** Unmounting medium ***')
         args = ['umount', self.blockDevice]
         wrappers.umount(args)
-
+        
+        logging.info('*** Starting image acquisition ***')
         if self.readMethod == "dd":
             args = ['dd']
             args.append('if=' + self.blockDevice)

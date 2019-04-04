@@ -58,7 +58,7 @@ def writeConfigFile(configRootDir, removeFlag):
     configSettings['extension'] = 'img'
     configSettings['rescueDirectDiscMode'] = 'False'
     configSettings['autoRetry'] = 'False'
-    configSettings['readCommand'] = 'readom'
+    configSettings['readCommand'] = 'dd'
     configSettings['timeZone'] = 'Europe/Amsterdam'
     configSettings['defaultDir'] = ''
 
