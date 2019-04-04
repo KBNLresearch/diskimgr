@@ -353,7 +353,12 @@ class omimgrGUI(tk.Frame):
             # Display both device with its corresponding size
             DEVICES.append(device[0] + ' (' + device[1] + ')')
         self.bdVar = tk.StringVar()
-        self.bdVar.set(DEVICES[0])
+        try:
+            self.bdVar.set(DEVICES[0])
+        except IndexError:
+            # We end up here if diskimgr is launched with insufficient rights
+            # or user is not part of disk group
+            self.bdVar.set("N/A")
         self.omDevice_entry = ttk.OptionMenu(self, self.bdVar, *DEVICES)
         
         tk.Label(self, text='Block device').grid(column=0, row=5, sticky='w')
