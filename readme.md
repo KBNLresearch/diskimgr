@@ -103,11 +103,7 @@ If *dd*'s attempt to read the disc resulted in any errors, *diskimgr* prompts th
 
 ![](./img/error-dd.png)
 
-After clicking *Yes*, *diskimgr* will delete the disc image that was created by *dd*, and then start *ddrescue*. If *ddrescue* also exits with any errors, it is possible to do one or more additional passes with *ddrescue*:
-
-![](./img/error-ddrescue.png)
-
-After clicking *Yes*, you can activate *Direct Disc* mode, or select another floppy drive. Press the *Start* button again to start reading the medium. Importantly, *diskimgr* does not delete the existing disc image in this case, but it will update it with any additional data that can be rescued from the medium.
+After clicking *Yes*, *diskimgr* will move the disc image that was created by *dd* to a subdirectory *dd-failed*, and then start *ddrescue*. If *ddrescue* also exits with any errors, it is possible to do one or more additional passes with *ddrescue*. For instance, you can activate *Direct Disc* mode, or select another floppy drive. Press the *Start* button again to start reading the medium. Importantly, this won't overwrite the existing image, but it will update it with any additional data that can be rescued from the medium.
 
 Note that *ddrescue* runs result in an additional [*mapfile*](https://www.gnu.org/software/ddrescue/manual/ddrescue_manual.html#Mapfile-structure) (**$prefix.map**). The map file contains information about the recovery status of data blocks, which allows *ddrescue* to resume previously interrupted recovery sessions. 
 
