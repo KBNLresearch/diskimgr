@@ -60,7 +60,9 @@ class Disk:
         self.mapFile = ''
         self.logFileName = ''
         self.checksumFileName = ''
+        self.checksumFile = ''
         self.metadataFileName = ''
+        self.metadataFile = ''
         self.finishedFlag = False
         self.successFlag = True
         self.deviceAccessibleFlag = False
@@ -214,8 +216,8 @@ class Disk:
 
         # Create checksum file
         logging.info('*** Creating checksum file ***')
-        checksumFile = os.path.join(self.dirOut, self.checksumFileName)
-        writeFlag, checksums = shared.checksumDirectory(self.dirOut, self.extension, checksumFile)
+        self.checksumFile = os.path.join(self.dirOut, self.checksumFileName)
+        writeFlag, checksums = shared.checksumDirectory(self.dirOut, self.extension, self.checksumFile)
 
         # Acquisition end date/time
         acquisitionEnd = shared.generateDateTime(self.timeZone)
@@ -246,9 +248,9 @@ class Disk:
 
         # Write metadata to file in json format
         logging.info('*** Writing metadata file ***')
-        metadataFile = os.path.join(self.dirOut, self.metadataFileName)
+        self.metadataFile = os.path.join(self.dirOut, self.metadataFileName)
         try:
-            with io.open(metadataFile, 'w', encoding='utf-8') as f:
+            with io.open(self.metadataFile, 'w', encoding='utf-8') as f:
                 json.dump(metadata, f, indent=4, sort_keys=True)
         except IOError:
             self.successFlag = False

@@ -16,6 +16,7 @@ import logging
 import queue
 import uuid
 import json
+from shutil import move
 from pathlib import Path
 import tkinter as tk
 from tkinter import filedialog as tkFileDialog
@@ -702,8 +703,7 @@ def main():
                 elif myGUI.disk.readMethod == 'dd' and not myGUI.disk.autoRetry:
                     # Imaging resulted in errors, as if user wants to retry with ddrescue
                     msg = ('Errors occurred while processing this disk\n'
-                           'Try again with ddrescue? (This will overwrite\n'
-                           'existing image file)')
+                           'Try again with ddrescue?')
                     if tkMessageBox.askyesno("Errors", msg):
                         retryFromDdFlag = True
                 elif myGUI.disk.readMethod == 'ddrescue':
@@ -718,6 +718,12 @@ def main():
                     # Reset flags
                     myGUI.disk.readErrorFlag = False
                     myGUI.disk.finishedFlag = False
+                    # Move files that were created by dd pass to subdirectory
+                    failedDir = os.path.join(myGUI.disk.dirOut,'dd-failed')
+                    os.makedirs(failedDir)
+                    move(myGUI.disk.imageFile, failedDir)
+                    move(myGUI.disk.metadataFile, failedDir)
+                    move(myGUI.disk.checksumFile, failedDir)
                     # Set readMethod to ddrescue
                     myGUI.v.set(2)
                     myGUI.on_submit()
