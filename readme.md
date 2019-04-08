@@ -109,7 +109,7 @@ Note that *ddrescue* runs result in an additional [*mapfile*](https://www.gnu.or
 
 ## Suggested workflow
 
-In general *dd* is the preferred tool to read a floppy disk, flash drive or harddisk. However, *dd* does not cope well with discs that are degraded or otherwise damaged. Because of this, the suggested workflow is to first try reading the medium with *dd*. If this results in any errors, try *ddrescue*. If you check the **Auto-retry** box, *diskimgr* will automatically launch *ddrescue* if the initial attempt to read the medium with *dd* failed (i.e. it will not display the confirmation dialog).
+In general *dd* is the preferred tool to read a floppy disk, flash drive or harddisk. However, *dd* does not cope well with media that are degraded or otherwise damaged. Because of this, the suggested workflow is to first try reading the medium with *dd*. If this results in any errors, try *ddrescue*. If you check the **Auto-retry** box, *diskimgr* will automatically launch *ddrescue* if the initial attempt to read the medium with *dd* failed (i.e. it will not display the confirmation dialog).
 
 It is possible to run multiple subsequent passes with *ddrescue*. If *ddrescue* fails with errors, it sometimes helps to re-run it in *Direct disc* mode (which can be selected from *diskimgr*'s interface). The results can sometimes be further improved by running multiple *ddrescue* passes with different reader devices (e.g. a few USB-connected floppy drives).
 
