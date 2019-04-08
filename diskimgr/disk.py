@@ -4,7 +4,6 @@ do the actual imaging.
 """
 
 import os
-import fcntl
 import io
 import json
 import time
