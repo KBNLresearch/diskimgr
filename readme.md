@@ -175,7 +175,6 @@ Most of these fields are self-explanatory, but the following need some further e
         "logFileName": "diskimgr.log",
         "metadataFileName": "metadata.json",
         "prefix": "disc",
-        "readCommand": "dd",
         "rescueDirectDiscMode": "False",
         "retries": "4",
         "timeZone": "Europe/Amsterdam"
