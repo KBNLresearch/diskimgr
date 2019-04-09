@@ -146,8 +146,9 @@ class Disk:
         sizeDevice = shared.getDeviceSize(self.blockDevice)
         st = os.statvfs(self.dirOut)
         sizeAvailable = st.f_bavail * st.f_frsize
-        if sizeDevice >= sizeAvailable:
-            self.insufficientSpaceFlag = True
+        self.insufficientSpaceFlag = sizeDevice >= sizeAvailable
+        #if sizeDevice >= sizeAvailable:
+        #    self.insufficientSpaceFlag = True
 
         # Image file
         self.imageFile = os.path.join(self.dirOut, self.prefix + '.' + self.extension)
