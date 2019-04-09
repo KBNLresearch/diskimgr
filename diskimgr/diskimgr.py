@@ -9,7 +9,7 @@ Research department,  KB / National Library of the Netherlands
 from .gui import main as guiLaunch
 from . import config
 
-__version__ = '0.1.0b3'
+__version__ = '0.1.0'
 
 def main():
     """Launch GUI"""
