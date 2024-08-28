@@ -337,7 +337,7 @@ class omimgrGUI(tk.Frame):
 
         # Set GUI geometry
         windowWidth = 700
-        windowHeight = 900
+        windowHeight = 810
 
         # get the screen dimension
         screenWidth = self.root.winfo_screenwidth()
