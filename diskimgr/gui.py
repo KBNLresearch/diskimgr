@@ -509,6 +509,7 @@ class omimgrGUI(tk.Frame):
 
         ttk.Separator(self, orient='horizontal').grid(column=0, row=19, columnspan=4, sticky='ew')
 
+        # Start button
         self.start_button = tk.Button(self,
                                       text='Start',
                                       width=10,
@@ -516,21 +517,22 @@ class omimgrGUI(tk.Frame):
                                       command=self.on_submit)
         self.start_button.grid(column=1, row=20, sticky='w')
 
-        self.quit_button = tk.Button(self,
-                                     text='Exit',
-                                     width=10,
-                                     underline=0,
-                                     command=self.on_quit)
-        self.quit_button.grid(column=1, row=20, sticky='e')
-
         # Interrupt button (disabled on startup)
         self.interrupt_button = tk.Button(self,
                                           text='Interrupt',
                                           underline=0,
                                           command=self.interruptImaging,
                                           width=8)
-        self.interrupt_button.grid(column=1, row=21, sticky='w')
+        self.interrupt_button.grid(column=1, row=20, sticky='')
         self.interrupt_button.config(state='disabled')
+
+        # Exit button
+        self.quit_button = tk.Button(self,
+                                     text='Exit',
+                                     width=10,
+                                     underline=0,
+                                     command=self.on_quit)
+        self.quit_button.grid(column=1, row=20, sticky='e')
 
         ttk.Separator(self, orient='horizontal').grid(column=0, row=22, columnspan=4, sticky='ew')
 
