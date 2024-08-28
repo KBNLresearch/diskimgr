@@ -335,7 +335,24 @@ class omimgrGUI(tk.Frame):
         self.grid_columnconfigure(2, weight=1, pad=0)
         self.grid_columnconfigure(3, weight=1, pad=0)
 
-        # Entry elements
+        # Set GUI geometry
+        windowWidth = 700
+        windowHeight = 900
+
+        # get the screen dimension
+        screenWidth = self.root.winfo_screenwidth()
+        screenHeight = self.root.winfo_screenheight()
+
+        # find the center point
+        centerX = int(screenWidth/2 - windowWidth / 2)
+        centerY = int(screenHeight/2 - windowHeight / 2)
+
+        # set the position of the window to the center of the screen
+        self.root.geometry(f'{windowWidth}x{windowHeight}+{centerX}+{centerY}')
+        # Disable resize
+        self.root.resizable(False, False)
+
+         # Entry elements
         ttk.Separator(self, orient='horizontal').grid(column=0, row=0, columnspan=4, sticky='ew')
         # Output Directory
         self.outDirButton_entry = tk.Button(self,
@@ -485,7 +502,7 @@ class omimgrGUI(tk.Frame):
 
         # Notes entry field
         tk.Label(self, text='Notes').grid(column=0, row=18, sticky='w')
-        self.notes_entry = tk.Text(self, height=6, width=45)
+        self.notes_entry = tk.Text(self, height=3, width=45)
         self.notes_entry['background'] = 'white'
         self.notes_entry.insert(tk.END, self.disk.notes)
         self.notes_entry.grid(column=1, row=18, sticky='w', columnspan=1)
@@ -518,7 +535,7 @@ class omimgrGUI(tk.Frame):
         ttk.Separator(self, orient='horizontal').grid(column=0, row=22, columnspan=4, sticky='ew')
 
         # Add ScrolledText widget to display logging info
-        self.st = ScrolledText.ScrolledText(self, state='disabled', height=15)
+        self.st = ScrolledText.ScrolledText(self, state='disabled', height=8)
         self.st.configure(font='TkFixedFont')
         self.st['background'] = 'white'
         self.st.grid(column=0, row=23, sticky='ew', columnspan=4)
