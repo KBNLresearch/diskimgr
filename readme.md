@@ -10,7 +10,9 @@
 
 - **Tkinter**. If *tkinter* is not installed already, you need to use the OS's package manager to install (there is no PyInstaller package for *tkinter*). If you're using *apt* this should work:
 
-        sudo apt-get install python3-tk
+```
+sudo apt-get install python3-tk
+```
 
 - **dd**, which is part of the [*GNU Core Utilities*](https://en.wikipedia.org/wiki/GNU_Core_Utilities).
 
@@ -24,7 +26,9 @@
 
 By default, running *dd* on a Linux system requires root access. To allow a non-root user to run *dd*, you must give them the permissions to do so by adding the user to the *disk* group. You can do this with the command below (replace $USER with the name of the user who will be using *diskimgr*):
 
-        sudo adduser $USER disk
+```
+sudo adduser $USER disk
+```
 
 The user is now added to the 'disk' system group. Now log out, and then log in again for the changes to take effect.
 
@@ -32,33 +36,45 @@ The user is now added to the 'disk' system group. Now log out, and then log in a
 
 For a global (all-users) installation run the following command:
 
-    sudo pip3 install diskimgr
+```
+sudo pip3 install diskimgr
+```
 
 Then run:
 
-    sudo diskimgr-config
+```
+sudo diskimgr-config
+```
 
 If all goes well this should result in the following output:
 
-    INFO: writing configuration file /etc/diskimgr/diskimgr.json
-    INFO: creating desktop file /usr/share/applications/diskimgr.desktop
-    INFO: diskimgr configuration completed successfully!
+```
+INFO: writing configuration file /etc/diskimgr/diskimgr.json
+INFO: creating desktop file /usr/share/applications/diskimgr.desktop
+INFO: diskimgr configuration completed successfully!
+```
 
 ### User install
 
 Use the following command for a single-user installation:
 
-    pip3 install --user diskimgr
+```
+pip3 install --user diskimgr
+```
 
 Then run:
 
-    ~/.local/bin/diskimgr-config
+```
+~/.local/bin/diskimgr-config
+```
 
 Result:
 
-    INFO: writing configuration file /home/johan/.config/diskimgr/diskimgr.json
-    INFO: creating desktop file /home/johan/.local/share/applications/diskimgr.desktop
-    INFO: diskimgr configuration completed successfully!
+```
+INFO: writing configuration file /home/johan/.config/diskimgr/diskimgr.json
+INFO: creating desktop file /home/johan/.local/share/applications/diskimgr.desktop
+INFO: diskimgr configuration completed successfully!
+```
 
 *diskimgr* is now ready to roll!
 
@@ -141,29 +157,31 @@ Follow these steps to resume a *ddrescue* run that was previously interrupted:
 
 The file *metadata.json* contains metadata in JSON format. Below is an example:
 
-    {
-        "acquisitionEnd": "2019-04-04T17:53:11.489543+02:00",
-        "acquisitionStart": "2019-04-04T17:52:29.692731+02:00",
-        "autoRetry": false,
-        "blockDevice": "/dev/sdb",
-        "checksumType": "SHA-512",
-        "checksums": {
-            "ks.img": "79a17d3fa536b8fa750257b01d05124dadb888f1171e9ca5cc3398a2c16de81b1687b52c70135b966409a723ef5f3960536a6e994847c5ebe7d5eaffefa62dc7"
-        },
-        "description": "KS metingen origineel",
-        "diskimgrVersion": "0.1.0b1",
-        "extension": "img",
-        "identifier": "5b159d32-56f1-11e9-9abb-2c4138b5272c",
-        "interruptedFlag": false,
-        "maxRetries": "4",
-        "notes": "",
-        "prefix": "ks",
-        "readCommandLine": "dd if=/dev/sdb of=/home/bcadmin/test/1/ks.img bs=512 conv=notrunc",
-        "readMethod": "dd",
-        "readMethodVersion": "dd (coreutils) 8.28",
-        "rescueDirectDiscMode": false,
-        "successFlag": true
-    }
+```json
+{
+    "acquisitionEnd": "2019-04-04T17:53:11.489543+02:00",
+    "acquisitionStart": "2019-04-04T17:52:29.692731+02:00",
+    "autoRetry": false,
+    "blockDevice": "/dev/sdb",
+    "checksumType": "SHA-512",
+    "checksums": {
+        "ks.img": "79a17d3fa536b8fa750257b01d05124dadb888f1171e9ca5cc3398a2c16de81b1687b52c70135b966409a723ef5f3960536a6e994847c5ebe7d5eaffefa62dc7"
+    },
+    "description": "KS metingen origineel",
+    "diskimgrVersion": "0.1.0b1",
+    "extension": "img",
+    "identifier": "5b159d32-56f1-11e9-9abb-2c4138b5272c",
+    "interruptedFlag": false,
+    "maxRetries": "4",
+    "notes": "",
+    "prefix": "ks",
+    "readCommandLine": "dd if=/dev/sdb of=/home/bcadmin/test/1/ks.img bs=512 conv=notrunc",
+    "readMethod": "dd",
+    "readMethodVersion": "dd (coreutils) 8.28",
+    "rescueDirectDiscMode": false,
+    "successFlag": true
+}
+```
 
 Most of these fields are self-explanatory, but the following need some further explanation:
 
@@ -174,19 +192,21 @@ Most of these fields are self-explanatory, but the following need some further e
 
 *Diskimgr*'s internal settings (default values for output file names, the optical device, etc.) are defined in a configuration file in Json format. For a global installation it is located at */etc/diskimgr/diskimgr.json*; for a user install it can be found at *~/.config/diskimgr/diskimgr.json*. The default configuration is show below:
 
-    {
-        "autoRetry": "False",
-        "blockSize": "512",
-        "checksumFileName": "checksums.sha512",
-        "defaultDir": "",
-        "extension": "img",
-        "logFileName": "diskimgr.log",
-        "metadataFileName": "metadata.json",
-        "prefix": "disc",
-        "rescueDirectDiscMode": "False",
-        "retries": "4",
-        "timeZone": "Europe/Amsterdam"
-    }
+```json
+{
+    "autoRetry": "False",
+    "blockSize": "512",
+    "checksumFileName": "checksums.sha512",
+    "defaultDir": "",
+    "extension": "img",
+    "logFileName": "diskimgr.log",
+    "metadataFileName": "metadata.json",
+    "prefix": "disc",
+    "rescueDirectDiscMode": "False",
+    "retries": "4",
+    "timeZone": "Europe/Amsterdam"
+}
+```
 
 You can change *diskimgr*'s default settings by editing this file. Most of the above settings are self-explanatory, with the exception of the following:
 
@@ -202,26 +222,36 @@ If you accidentally messed up the configuration file, you can always restore the
 
 To remove *diskimgr*, first run the *diskimgr-config* with the `--remove` flag to remove the configuration file and the start menu and desktop files. For a global install, run:
 
-    sudo diskimgr-config --remove
+```
+sudo diskimgr-config --remove
+```
 
 For a user install, run:
 
-    ~/.local/bin/diskimgr-config --remove
+```
+~/.local/bin/diskimgr-config --remove
+```
 
 The resulting output (shown below for a user install):
 
-    INFO: removing configuration file /home/johan/.config/diskimgr/diskimgr.json
-    INFO: removing configuration directory /home/johan/.config/diskimgr
-    INFO: removing desktop file /home/johan/.local/share/applications/diskimgr.desktop
-    INFO: diskimgr configuration completed successfully!
+```
+INFO: removing configuration file /home/johan/.config/diskimgr/diskimgr.json
+INFO: removing configuration directory /home/johan/.config/diskimgr
+INFO: removing desktop file /home/johan/.local/share/applications/diskimgr.desktop
+INFO: diskimgr configuration completed successfully!
+```
 
 Then remove the Python package with following command (global install):
 
-    sudo pip3 uninstall diskimgr
+```
+sudo pip3 uninstall diskimgr
+```
 
 For a user install use this:
 
-    pip3 uninstall diskimgr
+```
+pip3 uninstall diskimgr
+```
 
 ## Contributors
 
