@@ -10,15 +10,17 @@
 
 - **Tkinter**. If *tkinter* is not installed already, you need to use the OS's package manager to install (there is no PyInstaller package for *tkinter*). If you're using *apt* this should work:
 
-```
-sudo apt-get install python3-tk
-```
+    ```
+    sudo apt-get install python3-tk
+    ```
 
 - **dd**, which is part of the [*GNU Core Utilities*](https://en.wikipedia.org/wiki/GNU_Core_Utilities).
 
 - **ddrescue**, which can be installed using:
 
-        sudo apt install gddrescue
+    ```
+    sudo apt install gddrescue
+    ```
 
 ## Installation
 
